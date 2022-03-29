@@ -73,7 +73,7 @@ export default class MapboxGlComponentSource extends Component {
     if (!this._skipUpdate) {
       console.log('running: source updateSource helper');
       if (!this.args.map.getSource(this.sourceId)) {
-        if (options.type === 'geojson' && !options.data) {
+        if (options?.type === 'geojson' && !options.data) {
           /*
             This allows you to send data as null without causing an error in first render.
             Subsecuent renders only unhide the layer, so if data is required by an
@@ -81,19 +81,17 @@ export default class MapboxGlComponentSource extends Component {
           */
           options.data = { type: 'FeatureCollection', features: [] };
         }
-        this.args.map.addSource(this.sourceId);
+        this.args.map.addSource(this.sourceId, options);
       } else {
-        if (options) {
-          if (options.data) {
-            this.args.map.getSource(this.sourceId).setData(options.data);
-          } else if (options.coordinates) {
-            this.args.map
-              .getSource(this.sourceId)
-              .setCoordinates(options.coordinates);
-          } else if (options.type === 'vector') {
-            // For vector source type
-            this.args.map.getSource(this.sourceId).setTiles(options.tiles);
-          }
+        if (options?.data) {
+          this.args.map.getSource(this.sourceId).setData(options.data);
+        } else if (options?.coordinates) {
+          this.args.map
+            .getSource(this.sourceId)
+            .setCoordinates(options.coordinates);
+        } else if (options?.type === 'vector') {
+          // For vector source type
+          this.args.map.getSource(this.sourceId).setTiles(options.tiles);
         }
       }
     }
