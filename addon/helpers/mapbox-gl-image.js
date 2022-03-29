@@ -17,9 +17,9 @@ import noop from 'ember-mapbox-gl/utils/noop';
  *
  * Named arguments
  * @argument {MapboxGlInstance} map
- * The width of the image in pixels.
+ * The width of the image in pixels (when using svg)
  * @argument {int} width
- * The height of the image in pixels.
+ * The height of the image in pixels (when using svg)
  * @argument {int} height
  * @argument {function} onError
  * @argument {function} onLoad
@@ -83,11 +83,11 @@ export default class MapboxGlImage extends Helper {
         img.height = height;
       }
 
-      img.onload = this._onImage(imagePath, null, img);
-      img.onerror = this._onSvgErr(imagePath);
+      img.onload = this._onImage.bind(this, imagePath, null, img);
+      img.onerror = this._onSvgErr.bind(this, imagePath);
       img.src = imagePath;
     } else {
-      map.loadImage(imagePath, this._onImage(imagePath));
+      map.loadImage(imagePath, this._onImage.bind(this, imagePath));
     }
   }
 
@@ -117,10 +117,10 @@ export default class MapboxGlImage extends Helper {
     const { name, options } = this;
 
     // map#addImage doesn't like null for options, only undefined or an object
-    if (options === null) {
-      this.map.addImage(name, image);
-    } else {
+    if (options) {
       this.map.addImage(name, image, options);
+    } else {
+      this.map.addImage(name, image);
     }
 
     this._prevName = name;
