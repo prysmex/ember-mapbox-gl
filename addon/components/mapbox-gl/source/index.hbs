@@ -2,6 +2,7 @@
 {{yield
   (hash
     layer=(component 'mapbox-gl/layer' map=@map _sourceId=this.sourceId)
+    terrain=(component 'mapbox-gl/terrain' map=@map sourceId=this.sourceId)
     id=this.sourceId
   )
 }}
