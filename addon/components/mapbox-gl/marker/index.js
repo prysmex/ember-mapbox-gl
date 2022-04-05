@@ -5,7 +5,6 @@ import { helper } from '@ember/component/helper';
 
 const setLngLatHelper = helper(function ([lngLat, marker]) {
   assert('mapbox-gl.marker requires lngLat, maybe you passed latLng?', lngLat);
-  console.log('running: marker onUpdateLngLat helper');
 
   // TODO: Prevent setting the lngLat two times at initialization, at the constructor and here
   marker.setLngLat(lngLat);

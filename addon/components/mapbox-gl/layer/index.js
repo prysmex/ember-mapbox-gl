@@ -97,10 +97,8 @@ export default class MapboxGlMarkerComponent extends Component {
     const { map, before, cacheKey } = this.args;
 
     if (cacheKey && map.getLayer(layer.id)) {
-      window.console.log('unhide layer');
       map.setLayoutProperty(layer.id, 'visibility', 'visible');
     } else {
-      window.console.log('add layer');
       map.addLayer(layer, before);
     }
   }
@@ -126,10 +124,8 @@ export default class MapboxGlMarkerComponent extends Component {
     super.willDestroy(...arguments);
 
     if (this.args.cacheKey) {
-      window.console.log('hide layer');
       this.args.map.setLayoutProperty(this._layerId, 'visibility', 'none');
     } else {
-      window.console.log('remove layer');
       this.args.map.removeLayer(this._layerId);
     }
   }

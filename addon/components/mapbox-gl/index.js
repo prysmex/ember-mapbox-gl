@@ -47,13 +47,11 @@ export default class MapboxGlComponent extends Component {
 
   constructor() {
     super(...arguments);
-    console.log('running: MapboxGL constructor');
     this._loader = MapboxLoader.create();
   }
 
   @action
   loadMap(element) {
-    console.log('running: MapboxGL loadMap');
     const cacheKey = this.args.cacheKey;
     if (cacheKey && this.mapCache.has(cacheKey)) {
       console.log('found map on cache!');
@@ -68,11 +66,8 @@ export default class MapboxGlComponent extends Component {
       // TODO: Check if hasLoaded is true after a resize
       if (mapLoader.map.hasLoaded) {
         this.args.mapReloaded?.(mapLoader.map);
-      }
     } else {
-      console.log('load map for first time!');
       const { accessToken, map } = config['mapbox-gl'];
-      console.log('config: ', accessToken, map);
 
       const options = { ...map, ...this.args.initOptions };
       options.container = element;

@@ -71,7 +71,6 @@ export default class MapboxGlComponentSource extends Component {
   @action
   updateSource(options) {
     if (!this._skipUpdate) {
-      console.log('running: source updateSource helper');
       if (!this.args.map.getSource(this.sourceId)) {
         if (options?.type === 'geojson' && !options.data) {
           /*
