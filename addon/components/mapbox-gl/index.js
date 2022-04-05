@@ -71,7 +71,10 @@ export default class MapboxGlComponent extends Component {
       const { accessToken, map } = config['mapbox-gl'];
 
       const options = { ...map, ...this.args.initOptions };
-      options.container = element;
+
+      let mapContainer = document.createElement('div');
+      options.container = mapContainer;
+      element.appendChild(mapContainer);
 
       this._loader.load(accessToken, options, this.mapLoaded);
     }
