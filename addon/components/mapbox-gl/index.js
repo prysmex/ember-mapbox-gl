@@ -55,18 +55,14 @@ export default class MapboxGlComponent extends Component {
   loadMap(element) {
     const cacheKey = this.args.cacheKey;
     if (cacheKey && this.mapCache.has(cacheKey)) {
-      console.log('found map on cache!');
-      let { map: mapLoader, element } = this.mapCache.get(cacheKey);
+      let { map: mapLoader, element: mapContainer } =
+        this.mapCache.get(cacheKey);
       this._loader = mapLoader;
 
       // Append the map html element into component
-      element.appendChild(element);
-
-      // Call arg onReloaded if map was retrieved from cache
+      element.appendChild(mapContainer);
       mapLoader.map.resize();
-      // TODO: Check if hasLoaded is true after a resize
-      if (mapLoader.map.hasLoaded) {
-        this.args.mapReloaded?.(mapLoader.map);
+      this.args.mapReloaded?.(mapLoader.map);
     } else {
       const { accessToken, map } = config['mapbox-gl'];
 
