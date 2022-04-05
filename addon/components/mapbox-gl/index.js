@@ -81,9 +81,6 @@ export default class MapboxGlComponent extends Component {
     // Add map instance and DOM element to cache
     const cacheKey = this.args.cacheKey;
     if (cacheKey) {
-      // This needs to be after since it sets map.loaded() to false;
-      map.resize();
-      map.hasLoaded = true;
       this.mapCache.set(cacheKey, this._loader, map._container);
     }
 
