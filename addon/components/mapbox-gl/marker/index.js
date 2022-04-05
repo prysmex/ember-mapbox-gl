@@ -26,10 +26,9 @@ export default class MapboxGlMarkerComponent extends Component {
   constructor() {
     super(...arguments);
 
-    console.log('running: marker constructor');
-
+    const { lngLat, initOptions, MapboxGl, map, classes } = this.args;
     this.domContent = document.createElement('div');
-    const { lngLat, initOptions, MapboxGl, map } = this.args;
+    this.domContent.classList.add(classes);
 
     assert(
       'mapbox-gl.marker requires lngLat, maybe you passed latLng?',
@@ -41,9 +40,9 @@ export default class MapboxGlMarkerComponent extends Component {
       ...initOptions,
     };
 
-    this.marker = new MapboxGl.Marker(this.domContent, options)
-      .setLngLat(lngLat)
-      .addTo(map);
+    options.element = this.domContent;
+
+    this.marker = new MapboxGl.Marker(options).setLngLat(lngLat).addTo(map);
   }
 
   willDestroy() {
