@@ -34,7 +34,8 @@ export default class MapboxGlControl extends Helper {
 
     if (this._prevControl === null && cacheKey) {
       // Get _prevControl if there is one present in the map instance
-      this._prevControl = this.map._controls.find((c) => c.idName == idName);
+      this._prevControl =
+        this.map._controls.find((c) => c.idName == idName) ?? null;
       if (this._prevControl) {
         // Unhide if it was hidden
         this._prevControl._container.classList.remove('hide');
