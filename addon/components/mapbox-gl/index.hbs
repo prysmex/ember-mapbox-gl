@@ -1,8 +1,4 @@
-<div
-  class='map-wrapper'
-  {{did-insert this.loadMap}}
-  ...attributes
->
+<div class='map-wrapper' {{did-insert this.loadMap}} ...attributes>
   {{#if this._loader.isLoaded}}
     {{yield
       (hash
@@ -12,9 +8,7 @@
         control=(helper
           'mapbox-gl-control' map=this._loader.map cacheKey=@cacheKey
         )
-        image=(helper
-          'mapbox-gl-image' map=this._loader.map
-        )
+        image=(helper 'mapbox-gl-image' map=this._loader.map)
         source=(component
           'mapbox-gl/source' map=this._loader.map cacheKey=@cacheKey
         )
@@ -22,16 +16,11 @@
           'mapbox-gl/layer' map=this._loader.map cacheKey=@cacheKey
         )
         marker=(component
-          'mapbox-gl/marker'
-          map=this._loader.map
-          MapboxGl=this._loader.MapboxGl
+          'mapbox-gl/marker' map=this._loader.map MapboxGl=this._loader.MapboxGl
         )
         popup=(component
-          'mapbox-gl/popup'
-          map=this._loader.map
-          MapboxGl=this._loader.MapboxGl
+          'mapbox-gl/popup' map=this._loader.map MapboxGl=this._loader.MapboxGl
         )
-        
       )
     }}
   {{else if this._loader.error}}
