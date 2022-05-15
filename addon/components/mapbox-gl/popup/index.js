@@ -57,11 +57,11 @@ export default class MapboxGlPopupComponent extends Component {
       this.popup.on('close', onClose);
     }
 
-    if (marker === null) {
-      this.popup.addTo(map);
-    } else {
+    if (marker) {
       this.marker = marker;
       marker.setPopup(this.popup);
+    } else {
+      this.popup.addTo(map);
     }
   }
 
