@@ -1,9 +1,9 @@
 import Component from '@glimmer/component';
 import MapboxLoader from '../../-private/mapbox-loader';
-import config from 'ember-get-config';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
+import { getOwner } from '@ember/application';
 
 /**
  * Component that creates a new [mapbox-gl-js instance](https://www.mapbox.com/mapbox-gl-js/api/#map):
@@ -64,6 +64,7 @@ export default class MapboxGlComponent extends Component {
       mapLoader.map.resize();
       this.args.mapReloaded?.(mapLoader.map);
     } else {
+      let config = getOwner(this).resolveRegistration('config:environment');
       const { accessToken, map } = config['mapbox-gl'];
 
       const options = { ...map, ...this.args.initOptions };
