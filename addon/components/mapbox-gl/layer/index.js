@@ -46,7 +46,7 @@ const onUpdateArgsHelper = helper(function ([updateLayer, layer]) {
  * If this argument is omitted, the layer will be appended to the end of the layers array.
  * @argument {string} before
  */
-export default class MapboxGlMarkerComponent extends Component {
+export default class MapboxGlLayerComponent extends Component {
   onUpdateArgs = onUpdateArgsHelper;
 
   get _sourceId() {
