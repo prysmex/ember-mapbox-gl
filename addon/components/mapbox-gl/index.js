@@ -4,6 +4,7 @@ import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { getOwner } from '@ember/application';
+import { pick } from 'lodash-es';
 
 /**
  * Component that creates a new [mapbox-gl-js instance](https://www.mapbox.com/mapbox-gl-js/api/#map):
@@ -59,6 +60,22 @@ export default class MapboxGlComponent extends Component {
         this.mapCache.get(cacheKey);
       this._loader = mapLoader;
 
+      const options = this.args.initOptions || {};
+
+      if (options.bounds) {
+        mapLoader.map.fitBounds(options.bounds, options.fitBoundsOptions);
+      } else {
+        const cameraOptions = pick(options, [
+          'center',
+          'zoom',
+          'bearing',
+          'pitch',
+        ]);
+        mapLoader.map.jumpTo(cameraOptions);
+      }
+
+      mapLoader.map;
+
       // Append the map html element into component
       element.appendChild(mapContainer);
       mapLoader.map.resize();
@@ -66,7 +83,6 @@ export default class MapboxGlComponent extends Component {
     } else {
       let config = getOwner(this).resolveRegistration('config:environment');
       const { accessToken, map } = config['mapbox-gl'];
-
       const options = { ...map, ...this.args.initOptions };
 
       let mapContainer = document.createElement('div');
