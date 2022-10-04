@@ -74,8 +74,6 @@ export default class MapboxGlComponent extends Component {
         mapLoader.map.jumpTo(cameraOptions);
       }
 
-      mapLoader.map;
-
       // Append the map html element into component
       element.appendChild(mapContainer);
       mapLoader.map.resize();
