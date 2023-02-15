@@ -44,7 +44,9 @@ module('Integration | Component | mapbox gl layer', function (hooks) {
     try {
       const addLayerSpy = this.sandbox.spy(this.map, 'addLayer');
 
-      await render(hbs`{{mapbox-gl-layer map=this.map layer=this.layer}}`);
+      await render(
+        hbs`<MapboxGlLayer map={{this.map}} layer={{this.layer}} />`
+      );
 
       assert.ok(addLayerSpy.calledOnce, 'addLayer called once');
       assert.deepEqual(
@@ -87,7 +89,7 @@ module('Integration | Component | mapbox gl layer', function (hooks) {
     const addLayerSpy = this.sandbox.spy(this.map, 'addLayer');
 
     await render(
-      hbs`{{mapbox-gl-layer map=this.map layer=this.layer before=this.before}}`
+      hbs`<MapboxGlLayer map={{this.map}} layer={{this.layer}} before={{this.before}} />`
     );
 
     assert.ok(addLayerSpy.calledOnce, 'addLayer called once');
@@ -118,7 +120,7 @@ module('Integration | Component | mapbox gl layer', function (hooks) {
     const addLayerSpy = this.sandbox.spy(this.map, 'addLayer');
     const removeLayerSpy = this.sandbox.spy(this.map, 'removeLayer');
 
-    await render(hbs`{{mapbox-gl-layer map=this.map layer=this.layer}}`);
+    await render(hbs`<MapboxGlLayer map={{this.map}} layer={{this.layer}} />`);
 
     assert.ok(addLayerSpy.calledOnce, 'addLayer called once');
     assert.ok(addLayerSpy.firstCall.args[0].id, 'layer has a generated id');
@@ -148,7 +150,7 @@ module('Integration | Component | mapbox gl layer', function (hooks) {
     });
 
     await render(
-      hbs`{{mapbox-gl-layer map=this.map layer=(hash source=this.source)}}`
+      hbs`<MapboxGlLayer map={{this.map}} layer={{hash source=this.source}} />`
     );
 
     assert.ok(addLayerSpy.calledOnce, 'addLayer called once');
@@ -176,7 +178,7 @@ module('Integration | Component | mapbox gl layer', function (hooks) {
 
     const addLayerSpy = this.sandbox.spy(this.map, 'addLayer');
 
-    await render(hbs`{{mapbox-gl-layer map=this.map layer=this.layer}}`);
+    await render(hbs`<MapboxGlLayer map={{this.map}} layer={{this.layer}} />`);
 
     assert.ok(addLayerSpy.calledOnce, 'addLayer called once');
     assert.strictEqual(
@@ -210,7 +212,7 @@ module('Integration | Component | mapbox gl layer', function (hooks) {
       },
     });
 
-    await render(hbs`{{mapbox-gl-layer map=this.map layer=this.layer}}`);
+    await render(hbs`<MapboxGlLayer map={{this.map}} layer={{this.layer}} />`);
 
     assert.strictEqual(
       this.map.getLayoutProperty(this.layer.id, 'visibility'),
@@ -246,7 +248,7 @@ module('Integration | Component | mapbox gl layer', function (hooks) {
       },
     });
 
-    await render(hbs`{{mapbox-gl-layer map=this.map layer=this.layer}}`);
+    await render(hbs`<MapboxGlLayer map={{this.map}} layer={{this.layer}} />`);
 
     assert.strictEqual(
       this.map.getPaintProperty(this.layer.id, 'circle-color'),
@@ -280,7 +282,7 @@ module('Integration | Component | mapbox gl layer', function (hooks) {
       },
     });
 
-    await render(hbs`{{mapbox-gl-layer map=this.map layer=this.layer}}`);
+    await render(hbs`<MapboxGlLayer map={{this.map}} layer={{this.layer}} />`);
 
     assert.deepEqual(
       this.map.getFilter(this.layer.id),
@@ -306,7 +308,7 @@ module('Integration | Component | mapbox gl layer', function (hooks) {
       },
     });
 
-    await render(hbs`{{mapbox-gl-layer map=this.map layer=this.layer}}`);
+    await render(hbs`<MapboxGlLayer map={{this.map}} layer={{this.layer}} />`);
 
     assert.deepEqual(
       this.map.getFilter(this.layer.id),
@@ -345,7 +347,7 @@ module('Integration | Component | mapbox gl layer', function (hooks) {
 
     const addLayerSpy = this.sandbox.spy(this.map, 'addLayer');
 
-    await render(hbs`{{mapbox-gl-layer map=this.map layer=this.layer}}`);
+    await render(hbs`<MapboxGlLayer map={{this.map}} layer={{this.layer}} />`);
 
     assert.ok(addLayerSpy.calledOnce, 'addLayer called once');
     assert.deepEqual(
@@ -384,7 +386,7 @@ module('Integration | Component | mapbox gl layer', function (hooks) {
       'setLayerZoomRange'
     );
 
-    await render(hbs`{{mapbox-gl-layer map=this.map layer=this.layer}}`);
+    await render(hbs`<MapboxGlLayer map={{this.map}} layer={{this.layer}} />`);
 
     assert.ok(addLayerSpy.calledOnce, 'addLayer called once');
     assert.strictEqual(
@@ -440,11 +442,11 @@ module('Integration | Component | mapbox gl layer', function (hooks) {
     });
 
     await render(hbs`
-      {{#mapbox-gl-layer map=this.map layer=this.layer as |layer|}}
-        <div id="layer">
+      <MapboxGlLayer map={{this.map}} layer={{this.layer}} as |layer| >
+        <div id='layer'>
           {{layer.id}}
         </div>
-      {{/mapbox-gl-layer}}
+      </MapboxGlLayer>
     `);
 
     assert.dom('#layer').hasText('test-layer-id');

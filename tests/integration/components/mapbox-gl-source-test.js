@@ -37,7 +37,7 @@ module('Integration | Component | mapbox gl source', function (hooks) {
     const removeSourceSpy = this.sandbox.spy(this.map, 'removeSource');
 
     await render(
-      hbs`{{mapbox-gl-source map=this.map options=(hash type='geojson' data=this.data)}}`
+      hbs`<MapboxGlSource map={{this.map}} options={{hash type='geojson' data=this.data}} />`
     );
 
     assert.ok(addSourceSpy.calledOnce, 'addSource called once');
@@ -80,7 +80,7 @@ module('Integration | Component | mapbox gl source', function (hooks) {
     });
 
     await render(
-      hbs`{{mapbox-gl-source map=this.map sourceId=this.sourceId options=this.options}}`
+      hbs`<MapboxGlSource map={{this.map}} sourceId={{this.sourceId}} options={{this.options}} />`
     );
 
     assert.ok(addSourceSpy.calledOnce, 'addSource called once');
@@ -147,7 +147,11 @@ module('Integration | Component | mapbox gl source', function (hooks) {
     });
 
     await render(
-      hbs`{{mapbox-gl-source map=this.map sourceId=this.sourceId options=(hash type='geojson' data=this.data)}}`
+      hbs`<MapboxGlSource 
+        map={{this.map}} 
+        sourceId={{this.sourceId}} 
+        options={{hash type='geojson' data=this.data}}
+      />`
     );
 
     assert.ok(addSourceSpy.calledOnce, 'addSource called once');
@@ -200,7 +204,7 @@ module('Integration | Component | mapbox gl source', function (hooks) {
     const addSourceSpy = this.sandbox.spy(this.map, 'addSource');
 
     await render(
-      hbs`{{mapbox-gl-source map=this.map sourceId=this.sourceId options=this.options}}`
+      hbs`<MapboxGlSource map={{this.map}} sourceId={{this.sourceId}} options={{this.options}} />`
     );
 
     assert.ok(addSourceSpy.calledOnce, 'addSource called once');
@@ -255,9 +259,13 @@ module('Integration | Component | mapbox gl source', function (hooks) {
     this.sourceId = 'guvvguvguugvu';
 
     await render(hbs`
-      {{#mapbox-gl-source map=this.map sourceId=this.sourceId options=(hash type='geojson' data=this.data) as |source|}}
-        {{source.layer layer=(hash type='symbol' layout=(hash icon-image='rocket-15'))}}
-      {{/mapbox-gl-source}}
+      <MapboxGlSource 
+        map={{this.map}} 
+        sourceId={{this.sourceId}} 
+        options={{hash type='geojson' data=this.data}} as |Source|
+      >
+        <Source.layer layer={{hash type='symbol' layout=(hash icon-image='rocket-15')}} />
+      </MapboxGlSource>
     `);
 
     assert.ok(addLayerSpy.calledOnce, 'addLayer called once');
@@ -301,10 +309,10 @@ module('Integration | Component | mapbox gl source', function (hooks) {
     };
 
     await render(hbs`
-      {{#mapbox-gl mapLoaded=this.mapLoaded as |map|}}
-        {{map.source sourceId=this.sourceId options=this.options}}
+      <MapboxGl mapLoaded={{this.mapLoaded}} as |Map|>
+        <Map.source sourceId={{this.sourceId}} options={{this.options}} />
         <div id='loaded-sigil'></div>
-      {{/mapbox-gl}}
+      </MapboxGl>
     `);
 
     await waitFor('#loaded-sigil');
@@ -349,11 +357,15 @@ module('Integration | Component | mapbox gl source', function (hooks) {
 
     await render(
       hbs`
-        {{#mapbox-gl-source sourceId='test-source-id' map=this.map options=(hash type='geojson' data=this.data) as |source|}}
-          <div id="source">
+        <MapboxGlSource 
+          sourceId='test-source-id' 
+          map={{this.map}} 
+          options={{hash type='geojson' data=this.data}} as |source|
+        >
+          <div id='source'>
             {{source.id}}
           </div>
-        {{/mapbox-gl-source}}
+        </MapboxGlSource>
       `
     );
 

@@ -11,9 +11,9 @@ module('Integration | Component | mapbox gl', function (hooks) {
 
     // Template block usage:
     await render(hbs`
-      {{#mapbox-gl as |map|}}
+      <MapboxGl>
         <div id='loaded-sigil'></div>
-      {{/mapbox-gl}}
+      </MapboxGl>
     `);
 
     await waitFor('#loaded-sigil');

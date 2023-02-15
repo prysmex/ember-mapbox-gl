@@ -3,7 +3,7 @@ import { assert } from '@ember/debug';
 import { cancel, scheduleOnce } from '@ember/runloop';
 
 /**
- * A component used to call a specific Mapbox GL method.
+ * A helper used to call a specific Mapbox GL method.
  *
  * @class MapboxGlCallHelper
  *

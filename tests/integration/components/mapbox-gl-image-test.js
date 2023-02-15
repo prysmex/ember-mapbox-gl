@@ -22,7 +22,7 @@ module('Integration | Component | mapbox gl image', function (hooks) {
   test('it ignores null image', async function (assert) {
     const loadImageSpy = this.sandbox.spy(this.map, 'loadImage');
 
-    await render(hbs`{{mapbox-gl-image map=this.map}}`);
+    await render(hbs`<MapboxGlImage map={{this.map}} />`);
 
     assert.false(loadImageSpy.calledOnce, 'loadImage not called');
   });
