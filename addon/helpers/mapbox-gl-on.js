@@ -70,9 +70,9 @@ export default class MapboxGlOn extends Helper {
     const { eventSource, _prevEvent, _prevLayerId } = this;
     if (eventSource && _prevEvent) {
       if (_prevLayerId) {
-        eventSource.off(_prevEvent, _prevLayerId, this._boundOnEvent);
+        eventSource.off(_prevEvent, _prevLayerId, this._onEvent);
       } else {
-        eventSource.off(_prevEvent, this._boundOnEvent);
+        eventSource.off(_prevEvent, this._onEvent);
       }
     }
   }
