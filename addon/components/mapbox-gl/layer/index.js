@@ -3,6 +3,7 @@ import config from 'ember-get-config';
 import { guidFor } from '@ember/object/internals';
 import { helper } from '@ember/component/helper';
 import { action } from '@ember/object';
+import { inject as service } from '@ember/service';
 
 const onUpdateArgsHelper = helper(function ([updateLayer, layer]) {
   updateLayer(layer);
@@ -47,6 +48,8 @@ const onUpdateArgsHelper = helper(function ([updateLayer, layer]) {
  * @argument {string} before
  */
 export default class MapboxGlLayerComponent extends Component {
+  @service layersCache;
+
   onUpdateArgs = onUpdateArgsHelper;
 
   get _sourceId() {
@@ -101,6 +104,8 @@ export default class MapboxGlLayerComponent extends Component {
     } else {
       map.addLayer(layer, before);
     }
+
+    this.layersCache.push(map, layer.id);
   }
 
   @action
@@ -123,10 +128,20 @@ export default class MapboxGlLayerComponent extends Component {
   willDestroy() {
     super.willDestroy(...arguments);
 
-    if (this.args.cacheKey) {
-      this.args.map.setLayoutProperty(this._layerId, 'visibility', 'none');
-    } else {
-      this.args.map.removeLayer(this._layerId);
+    let { map, cacheKey } = this.args;
+
+    let layerCounter = this.layersCache.get(map, this._layer.id);
+
+    // Only if there's one instance of the layer, remove it
+    if (layerCounter === 1) {
+      if (cacheKey) {
+        map.setLayoutProperty(this._layerId, 'visibility', 'none');
+      } else {
+        map.removeLayer(this._layerId);
+      }
     }
+
+    // Substracts one to the layer counter
+    this.layersCache.pop(map, this._layer.id);
   }
 }
