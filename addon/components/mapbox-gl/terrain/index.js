@@ -9,7 +9,7 @@ export default class MapboxGlTerrainComponent extends Component {
       typeof this.args.map === 'object'
     );
     if (this.args.sourceId) {
-      return this.args.map.setTerrain({ source: this.sourceId });
+      return this.args.map.setTerrain({ source: this.args.sourceId });
     }
   }
 
