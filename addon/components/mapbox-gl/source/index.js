@@ -72,15 +72,16 @@ export default class MapboxGlComponentSource extends Component {
   updateSource(options) {
     if (!this._skipUpdate) {
       if (!this.args.map.getSource(this.sourceId)) {
-        if (options?.type === 'geojson' && !options.data) {
+        let _options = { ...options };
+        if (_options?.type === 'geojson' && !_options.data) {
           /*
             This allows you to send data as null without causing an error in first render.
             Subsecuent renders only unhide the layer, so if data is required by an
             if helper in the template, the layer won't be unhidden until the data has been loaded
           */
-          options.data = { type: 'FeatureCollection', features: [] };
+            _options.data = { type: 'FeatureCollection', features: [] };
         }
-        this.args.map.addSource(this.sourceId, options);
+        this.args.map.addSource(this.sourceId, _options);
       } else {
         if (options?.data) {
           this.args.map.getSource(this.sourceId).setData(options.data);
