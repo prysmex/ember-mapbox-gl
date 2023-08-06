@@ -33,8 +33,8 @@ export default class MapCacheService extends Service {
    * @param {MapboxLoader Instance} map - MapboxLoader Instance of map
    * @param {HTML Element} element - HTML element where map instance is rendered
    */
-  set(key, map, element) {
-    this._cache.set(key, { map, element });
+  set(key, map, element, options = {}) {
+    this._cache.set(key, { map, element, options });
   }
 
   /**
