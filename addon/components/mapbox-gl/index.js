@@ -56,30 +56,24 @@ export default class MapboxGlComponent extends Component {
   loadMap(element) {
     const cacheKey = this.args.cacheKey;
     if (cacheKey && this.mapCache.has(cacheKey)) {
-      let { map: mapLoader, element: mapContainer, metadata } =
-        this.mapCache.get(cacheKey);
+      let {
+        map: mapLoader,
+        element: mapContainer,
+        metadata,
+      } = this.mapCache.get(cacheKey);
       this._loader = mapLoader;
-
-      const initOptions = this.args.initOptions || {};
-
-      if (initOptions.bounds) {
-        mapLoader.map.fitBounds(initOptions.bounds, initOptions.fitBoundsOptions);
-      } else {
-        const cameraOptions = pick(initOptions, [
-          'center',
-          'zoom',
-          'bearing',
-          'pitch',
-        ]);
-        mapLoader.map.jumpTo(cameraOptions);
-      }
 
       // Append the map html element into component
       element.appendChild(mapContainer);
       mapLoader.map.resize();
       this.args.mapReloaded?.(mapLoader.map, metadata);
       // Save new options after sending mapReloaded event
-      this.mapCache.set(cacheKey, mapLoader, mapContainer, this.args.cacheMetadata);
+      this.mapCache.set(
+        cacheKey,
+        mapLoader,
+        mapContainer,
+        this.args.cacheMetadata
+      );
     } else {
       let config = getOwner(this).resolveRegistration('config:environment');
       const { accessToken, map } = config['mapbox-gl'];
@@ -98,7 +92,12 @@ export default class MapboxGlComponent extends Component {
     // Add map instance and DOM element to cache
     const cacheKey = this.args.cacheKey;
     if (cacheKey) {
-      this.mapCache.set(cacheKey, this._loader, map._container, this.args.cacheMetadata);
+      this.mapCache.set(
+        cacheKey,
+        this._loader,
+        map._container,
+        this.args.cacheMetadata
+      );
     }
 
     this.args.mapLoaded?.(map);
