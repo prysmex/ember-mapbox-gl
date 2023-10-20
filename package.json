@@ -1,5 +1,5 @@
 {
-  "name": "@prysmex/ember-mapbox-gl",
+  "name": "@prysmex-engineering/ember-mapbox-gl",
   "version": "1.0.0",
   "description": "Ember integration for Mapbox GL JS",
   "keywords": [
