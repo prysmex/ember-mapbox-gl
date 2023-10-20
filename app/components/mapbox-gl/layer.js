@@ -1,1 +1,1 @@
-export { default } from 'ember-mapbox-gl/components/mapbox-gl/layer';
+export { default } from '@prysmex-engineering/ember-mapbox-gl/components/mapbox-gl/layer';

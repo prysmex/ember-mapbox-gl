@@ -5,7 +5,7 @@ Ember integration with [`mapbox-gl-js`](https://docs.mapbox.com/mapbox-gl-js/api
 ## Installation
 
 ```sh
-ember install ember-mapbox-gl
+ember install @prysmex-engineering/ember-mapbox-gl
 ```
 
 Then, add your Mapbox access token to `config/environment.js`:

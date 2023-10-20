@@ -1,7 +1,7 @@
 import Helper from '@ember/component/helper';
 import { assert } from '@ember/debug';
 import { action } from '@ember/object';
-import noop from 'ember-mapbox-gl/utils/noop';
+import noop from '@prysmex-engineering/ember-mapbox-gl/utils/noop';
 
 /**
  * Adds an image for use in the map, see [here](https://www.mapbox.com/mapbox-gl-js/api/#map#addimage).

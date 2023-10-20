@@ -5,7 +5,7 @@ import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { getOwner } from '@ember/application';
 import { Map as MapboxMap } from 'mapbox-gl';
-import type MapCacheService from 'ember-mapbox-gl/services/map-cache';
+import type MapCacheService from '@prysmex-engineering/ember-mapbox-gl/services/map-cache';
 
 /**
  * Component that creates a new [mapbox-gl-js instance](https://www.mapbox.com/mapbox-gl-js/api/#map):

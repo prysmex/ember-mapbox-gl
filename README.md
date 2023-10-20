@@ -5,18 +5,18 @@
 [![Ember Observer Score][ember-observer-badge]][ember-observer-url]
 
 [npm-badge]: https://img.shields.io/npm/v/ember-mapbox-gl.svg
-[npm-badge-url]: https://www.npmjs.com/package/ember-mapbox-gl
-[github-actions-badge]: https://github.com/kturney/ember-mapbox-gl/workflows/CI/badge.svg
-[github-actions-badge-url]: https://github.com/kturney/ember-mapbox-gl/actions/workflows/ci.yml?query=branch%3Amaster
-[ember-observer-badge]: http://emberobserver.com/badges/ember-mapbox-gl.svg
-[ember-observer-url]: http://emberobserver.com/addons/ember-mapbox-gl
+[npm-badge-url]: https://www.npmjs.com/package/@prysmex-engineering/ember-mapbox-gl
+[github-actions-badge]: https://github.com/prysmex/ember-mapbox-gl/workflows/CI/badge.svg
+[github-actions-badge-url]: https://github.com/prysmex/ember-mapbox-gl/actions/workflows/ci.yml?query=branch%3Amaster
+[ember-observer-badge]: http://emberobserver.com/badges/@prysmex-engineering/ember-mapbox-gl.svg
+[ember-observer-url]: http://emberobserver.com/addons/@prysmex-engineering/ember-mapbox-gl
 
 Ember integration with [mapbox-gl-js](https://www.mapbox.com/mapbox-gl-js/api/).
 
 ## Installation
 
 ```sh
-ember install ember-mapbox-gl
+ember install @prysmex-engineering/ember-mapbox-gl
 ```
 
 Then, add your Mapbox access token to `config/environment.js`:

@@ -1,1 +1,1 @@
-export { default } from 'ember-mapbox-gl/services/layers-cache';
+export { default } from '@prysmex-engineering/ember-mapbox-gl/services/layers-cache';

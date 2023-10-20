@@ -1,4 +1,4 @@
-import noop from 'ember-mapbox-gl/utils/noop';
+import noop from '@prysmex-engineering/ember-mapbox-gl/utils/noop';
 import { module, test } from 'qunit';
 
 module('Unit | Utility | noop', function () {

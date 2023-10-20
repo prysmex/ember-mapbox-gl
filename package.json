@@ -107,6 +107,9 @@
     "mapbox-gl": "2.15.0",
     "lodash-es": "^4.17.21"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": "12.* || 14.* || >= 16"
   },

@@ -28,16 +28,16 @@
         "tests/dummy/app/*",
         "app/*"
       ],
-      "ember-mapbox-gl": [
+      "@prysmex-engineering/ember-mapbox-gl": [
         "addon"
       ],
-      "ember-mapbox-gl/*": [
+      "@prysmex-engineering/ember-mapbox-gl/*": [
         "addon/*"
       ],
-      "ember-mapbox-gl/test-support": [
+      "@prysmex-engineering/ember-mapbox-gl/test-support": [
         "addon-test-support"
       ],
-      "ember-mapbox-gl/test-support/*": [
+      "@prysmex-engineering/ember-mapbox-gl/test-support/*": [
         "addon-test-support/*"
       ],
       "*": [

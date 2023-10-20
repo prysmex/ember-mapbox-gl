@@ -4,7 +4,7 @@ import { guidFor } from '@ember/object/internals';
 import { helper } from '@ember/component/helper';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
-import type LayersCacheService from 'ember-mapbox-gl/services/layers-cache';
+import type LayersCacheService from '@prysmex-engineering/ember-mapbox-gl/services/layers-cache';
 import {
   Map as MapboxMap,
   AnyLayout,
