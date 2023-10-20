@@ -60,7 +60,7 @@ export default class MapboxGlCall extends Helper {
   }
 
   willDestroy() {
-    super.willDestroy(...arguments);
+    super.willDestroy();
 
     if (this._scheduledCall !== null) {
       cancel(this._scheduledCall);

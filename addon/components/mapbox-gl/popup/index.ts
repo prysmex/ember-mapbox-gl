@@ -1,8 +1,10 @@
 import Component from '@glimmer/component';
 import config from 'ember-get-config';
 import { helper } from '@ember/component/helper';
+import { Map as MapboxMap, Popup, PopupOptions, Marker, LngLatLike } from 'mapbox-gl';
+import { MapboxGL } from '../../../-private/mapbox-loader';
 
-const setLngLatHelper = helper(function ([lngLat, popup, map]) {
+const setLngLatHelper = helper(function ([lngLat, popup, map]: [lngLat: LngLatLike, popup: Popup, map: MapboxMap]) {
   if (lngLat) {
     if (popup.isOpen()) {
       popup.setLngLat(lngLat);
@@ -11,7 +13,9 @@ const setLngLatHelper = helper(function ([lngLat, popup, map]) {
       popup.addTo(map);
       popup.setLngLat(lngLat);
     }
+    return true;
   }
+  return false;
 });
 
 /**
@@ -34,15 +38,27 @@ const setLngLatHelper = helper(function ([lngLat, popup, map]) {
  * @argument {function} onClose
  * @argument {MapboxGl} MapboxGl
  */
-export default class MapboxGlPopupComponent extends Component {
+
+interface MapboxGlPopupArgs {
+  map: MapboxMap;
+  MapboxGl: MapboxGL;
+  initOptions?: PopupOptions;
+  lngLat?: LngLatLike;
+  marker?: Marker;
+  onClose?: () => void;
+}
+
+export default class MapboxGlPopupComponent extends Component<MapboxGlPopupArgs> {
   setLngLat = setLngLatHelper;
-  marker = null;
-  onClose = null;
+  popup: Popup;
+  marker: Marker | undefined;
+  onClose: (() => void) | undefined;
+  domContent: HTMLElement;
 
-  constructor() {
-    super(...arguments);
+  constructor(owner: any, args: MapboxGlPopupArgs) {
+    super(owner, args);
 
-    const { initOptions, marker, map, onClose, MapboxGl } = this.args;
+    const { initOptions, marker, map, onClose, MapboxGl } = args;
 
     this.domContent = document.createElement('div');
     const options = {
@@ -66,7 +82,7 @@ export default class MapboxGlPopupComponent extends Component {
   }
 
   willDestroy() {
-    super.willDestroy(...arguments);
+    super.willDestroy();
 
     if (this.onClose) {
       this.popup.off('close', this.onClose);
@@ -74,10 +90,10 @@ export default class MapboxGlPopupComponent extends Component {
 
     const marker = this.marker;
 
-    if (marker === null) {
+    if (marker === undefined) {
       this.popup.remove();
     } else {
-      marker.setPopup(null);
+      marker.setPopup(undefined);
     }
   }
 }

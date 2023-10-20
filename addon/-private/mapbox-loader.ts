@@ -1,32 +1,44 @@
-import { bind, next } from '@ember/runloop';
-import EmberObject, { set } from '@ember/object';
+import { next } from '@ember/runloop';
 import { Promise as RsvpPromise } from 'rsvp';
+import mapboxgl, { Map as MapboxMap, MapboxOptions, ErrorEvent } from 'mapbox-gl';
+import { tracked } from '@glimmer/tracking';
+import { action } from '@ember/object';
 
-class MapboxLoaderCancelledError extends Error {}
-class MapboxSupportError extends Error {
+export type MapboxGL = typeof mapboxgl;
+export class MapboxLoaderCancelledError extends Error {}
+export class MapboxSupportError extends Error {
   isMapboxSupportError = true;
 }
-class MapboxError extends Error {
-  constructor(ev) {
+export class MapboxError extends Error {
+  event: ErrorEvent;
+  constructor(ev: ErrorEvent) {
     super(ev.error?.message ?? 'unknown mapbox error');
-
     this.event = ev;
   }
 }
 
-export default EmberObject.extend({
-  map: null,
-  error: null,
-  MapboxGl: null,
-  isLoaded: false,
+export default class MapboxLoader {
+  map: MapboxMap | undefined;
+  MapboxGl: MapboxGL | undefined;
 
-  _accessToken: null,
-  _mapOptions: null,
-  _extOnMapLoaded: null,
-  _isCancelled: false,
-  _isLoading: false,
+  @tracked error:
+    | MapboxLoaderCancelledError
+    | MapboxSupportError
+    | MapboxError
+    | undefined;
+  @tracked isLoaded = false;
 
-  load(accessToken, options, onMapLoaded) {
+  _accessToken: string | undefined;
+  _mapOptions: MapboxOptions | undefined;
+  _extOnMapLoaded: ((map: MapboxMap) => void) | undefined;
+  _isCancelled = false;
+  _isLoading = false;
+
+  load(
+    accessToken: string,
+    options: MapboxOptions,
+    onMapLoaded?: (map: MapboxMap) => void
+  ) {
     if (this.isLoaded || this._isLoading || this._isCancelled) {
       return;
     }
@@ -37,29 +49,30 @@ export default EmberObject.extend({
     this._extOnMapLoaded = onMapLoaded;
 
     import('mapbox-gl')
-      .then(bind(this, this._onModule))
-      .then(bind(this, this._onMapLoaded))
-      .then(bind(this, this._onComplete))
-      .catch(bind(this, this._onError));
-  },
+      .then(this._onModule)
+      .then(this._onMapLoaded)
+      .then(this._onComplete)
+      .catch(this._onError);
+  }
 
   cancel() {
     this._isCancelled = true;
 
-    if (this.map !== null) {
+    if (this.map !== undefined) {
       // some map users may be late doing cleanup (seen with mapbox-draw-gl),
       // so don't remove the map until the next tick
       next(this.map, this.map.remove);
     }
-  },
+  }
 
-  _onModule(MapboxGl) {
+  @action
+  _onModule({ default: MapboxModule }: { default: MapboxGL }) {
     if (this._isCancelled) {
       throw new MapboxLoaderCancelledError();
     }
 
-    this.MapboxGl = MapboxGl.default;
-    this.MapboxGl.accessToken = this._accessToken;
+    this.MapboxGl = MapboxModule;
+    this.MapboxGl.accessToken = this._accessToken!;
 
     if (!this.MapboxGl.supported()) {
       throw new MapboxSupportError(
@@ -76,7 +89,7 @@ export default EmberObject.extend({
           map.off('error', listeners.onError);
           resolve();
         },
-        onError(ev) {
+        onError(ev: ErrorEvent) {
           map.off('load', listeners.onLoad);
           map.off('error', listeners.onError);
 
@@ -87,20 +100,22 @@ export default EmberObject.extend({
       map.on('load', listeners.onLoad);
       map.on('error', listeners.onError);
     });
-  },
+  }
 
+  @action
   _onMapLoaded() {
     if (this._isCancelled) {
       throw new MapboxLoaderCancelledError();
     }
 
-    if (typeof this._extOnMapLoaded === 'function') {
+    if (typeof this._extOnMapLoaded === 'function' && this.map !== undefined) {
       return this._extOnMapLoaded(this.map);
     }
 
     return null;
-  },
+  }
 
+  @action
   _onComplete() {
     this._isLoading = false;
 
@@ -108,10 +123,10 @@ export default EmberObject.extend({
       return;
     }
 
-    set(this, 'isLoaded', true);
-  },
+    this.isLoaded = true;
+  }
 
-  _onError(err) {
+  _onError(err: MapboxLoaderCancelledError | MapboxSupportError | MapboxError) {
     this._isLoading = false;
 
     if (err instanceof MapboxLoaderCancelledError) {
@@ -119,10 +134,9 @@ export default EmberObject.extend({
     }
 
     if (this._isCancelled) {
-      console.error(err); // eslint-disable-line no-console
       return;
     }
 
-    set(this, 'error', err);
-  },
-});
+    this.error = err;
+  }
+}

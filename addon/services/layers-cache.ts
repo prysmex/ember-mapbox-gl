@@ -1,4 +1,5 @@
 import Service from '@ember/service';
+import { Map as MapboxMap } from 'mapbox-gl';
 
 /**
  * Layers cache to keep track of which layers are added to each map
@@ -9,26 +10,29 @@ import Service from '@ember/service';
  */
 
 export default class LayersCacheService extends Service {
-  _cache = new Map();
+  _cache = new Map<MapboxMap, Map<string, number>>();
 
   /**
    * Returns whether or not the cache contains the counter for the specified map and layer
-   * @param {string} key - Id of map
+   * @param {MapboxMap} map - MapboxLoader Instance of map
+   * @param {string} layerId - Id of the layer
    * @return {Boolean}
    */
-  has(map, layerId) {
+  hasCounter(map: MapboxMap, layerId: string): boolean {
     let mapCache = this._cache.get(map);
     if (mapCache) {
       return mapCache.has(layerId);
     }
+    return false;
   }
 
   /**
    * Returns the number of times the layer has been added to the map
-   * @param {string} key - Id of map
-   * @return {Object | undefined}
+   * @param {MapboxMap} map - MapboxLoader Instance of map
+   * @param {string} layerId - Id of the layer
+   * @return {number | undefined}
    */
-  get(map, layerId) {
+  getCounter(map: MapboxMap, layerId: string): number | undefined {
     let mapCache = this._cache.get(map);
     if (mapCache) {
       return mapCache.get(layerId);
@@ -37,10 +41,10 @@ export default class LayersCacheService extends Service {
   }
 
   // Increments the counter for the specified map and layer
-  push(map, layerId) {
+  push(map: MapboxMap, layerId: string) {
     let mapCache = this._cache.get(map);
     if (!mapCache) {
-      mapCache = new Map();
+      mapCache = new Map<string, number>();
       mapCache.set(layerId, 1);
       this._cache.set(map, mapCache);
     } else {
@@ -54,7 +58,7 @@ export default class LayersCacheService extends Service {
   }
 
   // Decrements the counter for the specified map and layer
-  pop(map, layerId) {
+  pop(map: MapboxMap, layerId: string): boolean {
     let mapCache = this._cache.get(map);
     if (mapCache) {
       let layerCount = mapCache.get(layerId);
@@ -64,7 +68,9 @@ export default class LayersCacheService extends Service {
         } else {
           mapCache.set(layerId, layerCount - 1);
         }
+        return true;
       }
     }
+    return false;
   }
 }

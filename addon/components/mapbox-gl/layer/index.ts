@@ -4,10 +4,16 @@ import { guidFor } from '@ember/object/internals';
 import { helper } from '@ember/component/helper';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
+import type LayersCacheService from 'ember-mapbox-gl/services/layers-cache';
+import {
+  Map as MapboxMap,
+  AnyLayout,
+  AnyPaint,
+  CustomLayerInterface,
+  AnyLayer,
+} from 'mapbox-gl';
 
-const onUpdateArgsHelper = helper(function ([updateLayer, layer]) {
-  updateLayer(layer);
-});
+type SupportedLayers = Exclude<AnyLayer, CustomLayerInterface>;
 
 /**
  * Adds a data source to the map.
@@ -47,8 +53,26 @@ const onUpdateArgsHelper = helper(function ([updateLayer, layer]) {
  * If this argument is omitted, the layer will be appended to the end of the layers array.
  * @argument {string} before
  */
-export default class MapboxGlLayerComponent extends Component {
-  @service layersCache;
+
+const onUpdateArgsHelper = helper(function ([updateLayer, layer]: [
+  (layer: SupportedLayers) => boolean,
+  SupportedLayers
+]) {
+  return updateLayer(layer);
+});
+
+interface MapboxGlLayerArgs {
+  map: MapboxMap;
+  layer: SupportedLayers;
+  before?: string;
+  cacheKey?: string | false;
+  _sourceId?: string;
+  onDidInsert?: (layer: SupportedLayers) => void;
+  onDidUpdate?: (layer: SupportedLayers) => void;
+}
+
+export default class MapboxGlLayerComponent extends Component<MapboxGlLayerArgs> {
+  @service declare layersCache: LayersCacheService;
 
   onUpdateArgs = onUpdateArgsHelper;
 
@@ -78,7 +102,7 @@ export default class MapboxGlLayerComponent extends Component {
 
   get _layer() {
     // do this to pick up other properties like filter, re, metadata, source-layer, minzoom, maxzoom, etc
-    let layer = {
+    let layer: SupportedLayers = {
       ...this.args.layer,
       id: this._layerId,
       type: this._layerType,
@@ -88,16 +112,17 @@ export default class MapboxGlLayerComponent extends Component {
     };
     // Remove undefined keys
     Object.keys(layer).forEach(
-      (key) => layer[key] === undefined && delete layer[key]
+      (key: keyof SupportedLayers) =>
+        layer[key] === undefined && delete layer[key]
     );
     return layer;
   }
 
-  constructor() {
-    super(...arguments);
+  constructor(owner: any, args: MapboxGlLayerArgs) {
+    super(owner, args);
 
     const layer = this._layer;
-    const { map, before, cacheKey } = this.args;
+    const { map, before, cacheKey } = args;
 
     if (cacheKey && map.getLayer(layer.id)) {
       map.setLayoutProperty(layer.id, 'visibility', 'visible');
@@ -106,31 +131,46 @@ export default class MapboxGlLayerComponent extends Component {
     }
 
     this.layersCache.push(map, layer.id);
+    this.args.onDidInsert?.(layer);
   }
 
   @action
-  updateLayer(layer) {
-    for (const k in layer.layout) {
-      this.args.map.setLayoutProperty(layer.id, k, layer.layout[k]);
+  updateLayer(layer: SupportedLayers): boolean {
+    if (layer.layout) {
+      Object.keys(layer.layout).forEach((key: keyof AnyLayout) => {
+        this.args.map.setLayoutProperty(layer.id, key, layer.layout![key]);
+      });
     }
 
-    for (const k in layer.paint) {
-      this.args.map.setPaintProperty(layer.id, k, layer.paint[k]);
+    if (layer.paint) {
+      Object.keys(layer.paint).forEach((key: keyof AnyPaint) => {
+        this.args.map.setPaintProperty(layer.id, key, layer.paint![key]);
+      });
     }
 
     if ('filter' in layer) {
       this.args.map.setFilter(layer.id, layer.filter);
     }
 
-    this.args.map.setLayerZoomRange(layer.id, layer.minzoom, layer.maxzoom);
+    if (layer.minzoom || layer.maxzoom) {
+      let mapLayer = this.args.map.getLayer(layer.id) as SupportedLayers;
+      this.args.map.setLayerZoomRange(
+        layer.id,
+        layer.minzoom ?? mapLayer.minzoom ?? 0,
+        layer.maxzoom ?? mapLayer.maxzoom ?? 24
+      );
+    }
+
+    this.args.onDidUpdate?.(layer);
+    return true;
   }
 
   willDestroy() {
-    super.willDestroy(...arguments);
+    super.willDestroy();
 
     let { map, cacheKey } = this.args;
 
-    let layerCounter = this.layersCache.get(map, this._layer.id);
+    let layerCounter = this.layersCache.getCounter(map, this._layer.id);
 
     // Only if there's one instance of the layer, remove it
     if (layerCounter === 1) {

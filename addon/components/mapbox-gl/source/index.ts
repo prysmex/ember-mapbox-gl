@@ -3,13 +3,14 @@ import { scheduleOnce } from '@ember/runloop';
 import { guidFor } from '@ember/object/internals';
 import { helper } from '@ember/component/helper';
 import { action } from '@ember/object';
-
-const onUpdateArgsHelper = helper(function ([updateSource, options]) {
-  // Raster sources can't update
-  if (options.type !== 'raster') {
-    updateSource(options);
-  }
-});
+import { Feature, Geometry, FeatureCollection } from 'geojson';
+import {
+  Map as MapboxMap,
+  AnySourceData,
+  GeoJSONSource,
+  ImageSource,
+  VectorSourceImpl,
+} from 'mapbox-gl';
 
 /**
  * Adds a data source to the map. The API matches the mapbox [source docs](https://www.mapbox.com/mapbox-gl-js/api/#sources).
@@ -52,7 +53,27 @@ const onUpdateArgsHelper = helper(function ([updateSource, options]) {
  * {@link https://www.mapbox.com/mapbox-gl-js/api/#map#addsource Mapbox}
  * @argument {string} sourceId
  */
-export default class MapboxGlComponentSource extends Component {
+
+const onUpdateArgsHelper = helper(function ([updateSource, options]: [
+  (options: AnySourceData) => void,
+  AnySourceData
+]) {
+  // Raster sources can't update
+  if (options.type !== 'raster') {
+    updateSource(options);
+    return true;
+  }
+  return false;
+});
+
+interface MapboxGlSourceArgs {
+  map: MapboxMap;
+  options: AnySourceData;
+  sourceId?: string;
+  cacheKey?: string | false;
+}
+
+export default class MapboxGlComponentSource extends Component<MapboxGlSourceArgs> {
   onUpdateArgs = onUpdateArgsHelper;
   _skipUpdate = false;
 
@@ -60,8 +81,8 @@ export default class MapboxGlComponentSource extends Component {
     return this.args.sourceId ?? guidFor(this);
   }
 
-  constructor() {
-    super(...arguments);
+  constructor(owner: any, args: MapboxGlSourceArgs) {
+    super(owner, args);
 
     this.updateSource(this.args.options);
     // Skip the first udpate of the helper
@@ -69,9 +90,10 @@ export default class MapboxGlComponentSource extends Component {
   }
 
   @action
-  updateSource(options) {
+  updateSource(options: AnySourceData) {
     if (!this._skipUpdate) {
-      if (!this.args.map.getSource(this.sourceId)) {
+      let source = this.args.map.getSource(this.sourceId);
+      if (!source) {
         let _options = { ...options };
         if (_options?.type === 'geojson' && !_options.data) {
           /*
@@ -79,19 +101,22 @@ export default class MapboxGlComponentSource extends Component {
             Subsecuent renders only unhide the layer, so if data is required by an
             if helper in the template, the layer won't be unhidden until the data has been loaded
           */
-            _options.data = { type: 'FeatureCollection', features: [] };
+          _options.data = { type: 'FeatureCollection', features: [] };
         }
         this.args.map.addSource(this.sourceId, _options);
       } else {
-        if (options?.data) {
-          this.args.map.getSource(this.sourceId).setData(options.data);
-        } else if (options?.coordinates) {
-          this.args.map
-            .getSource(this.sourceId)
-            .setCoordinates(options.coordinates);
-        } else if (options?.type === 'vector') {
+        if (options.type === 'geojson' && options?.data) {
+          (source as GeoJSONSource).setData(
+            options.data as
+              | Feature<Geometry>
+              | FeatureCollection<Geometry>
+              | String
+          );
+        } else if (options.type === 'image' && options?.coordinates) {
+          (source as ImageSource).setCoordinates(options.coordinates);
+        } else if (options.type === 'vector' && options.tiles) {
           // For vector source type
-          this.args.map.getSource(this.sourceId).setTiles(options.tiles);
+          (source as VectorSourceImpl).setTiles(options.tiles);
         }
       }
     }
@@ -99,7 +124,7 @@ export default class MapboxGlComponentSource extends Component {
   }
 
   willDestroy() {
-    super.willDestroy(...arguments);
+    super.willDestroy();
 
     if (!this.args.cacheKey) {
       // wait for any layers to be removed before removing the source

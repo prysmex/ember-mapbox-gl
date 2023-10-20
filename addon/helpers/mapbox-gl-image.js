@@ -92,7 +92,7 @@ export default class MapboxGlImage extends Helper {
   }
 
   willDestroy() {
-    super.willDestroy(...arguments);
+    super.willDestroy();
 
     if (this._imageSet === true) {
       this.map.removeImage(this._prevName);
