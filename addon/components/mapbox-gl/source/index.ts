@@ -61,9 +61,7 @@ const onUpdateArgsHelper = helper(function ([updateSource, options]: [
   // Raster sources can't update
   if (options.type !== 'raster') {
     updateSource(options);
-    return true;
   }
-  return false;
 });
 
 interface MapboxGlSourceArgs {

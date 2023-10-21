@@ -13,9 +13,7 @@ const setLngLatHelper = helper(function ([lngLat, popup, map]: [lngLat: LngLatLi
       popup.addTo(map);
       popup.setLngLat(lngLat);
     }
-    return true;
   }
-  return false;
 });
 
 /**

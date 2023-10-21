@@ -58,7 +58,7 @@ const onUpdateArgsHelper = helper(function ([updateLayer, layer]: [
   (layer: SupportedLayers) => boolean,
   SupportedLayers
 ]) {
-  return updateLayer(layer);
+  updateLayer(layer);
 });
 
 interface MapboxGlLayerArgs {

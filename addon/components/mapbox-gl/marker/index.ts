@@ -20,7 +20,7 @@ const setLngLatHelper = helper(function ([lngLat, marker]: [lngLat: LngLatLike, 
   assert('mapbox-gl.marker requires lngLat, maybe you passed latLng?', lngLat);
 
   // TODO: Prevent setting the lngLat two times at initialization, at the constructor and here
-  return marker.setLngLat(lngLat);
+  marker.setLngLat(lngLat);
 });
 
 interface MapboxGlMarkerArgs {
