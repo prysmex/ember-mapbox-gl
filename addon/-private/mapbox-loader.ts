@@ -126,6 +126,7 @@ export default class MapboxLoader {
     this.isLoaded = true;
   }
 
+  @action
   _onError(err: MapboxLoaderCancelledError | MapboxSupportError | MapboxError) {
     this._isLoading = false;
 
