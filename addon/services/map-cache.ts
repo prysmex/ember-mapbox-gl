@@ -6,10 +6,12 @@ import MapboxLoader from '../-private/mapbox-loader';
  * The Maps are used for optimizing the performance and rendering speed.
  */
 
+type layerId = string;
 interface CachedMap {
   mapLoader: MapboxLoader;
   element: HTMLElement;
   metadata: {};
+  layers: Map<layerId, { sourceId?: string, currentRenders: number}>;
 }
 
 export default class MapCacheService extends Service {
@@ -45,7 +47,15 @@ export default class MapCacheService extends Service {
     element: HTMLElement,
     metadata = {}
   ) {
-    this._cache.set(key, { mapLoader, element, metadata });
+    let defaultValue = {
+      layers: new Map(),
+    };
+    if (this._cache.has(key)) {
+      defaultValue = this._cache.get(key)!;
+    }
+    let value = { ...defaultValue, ...{ mapLoader, element, metadata } };
+
+    this._cache.set(key, value);
   }
 
   /**

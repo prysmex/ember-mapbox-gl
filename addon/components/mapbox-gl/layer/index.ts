@@ -4,7 +4,7 @@ import { guidFor } from '@ember/object/internals';
 import { helper } from '@ember/component/helper';
 import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
-import type LayersCacheService from '@prysmex-engineering/ember-mapbox-gl/services/layers-cache';
+import MapCacheService from '@prysmex-engineering/ember-mapbox-gl/services/map-cache';
 import {
   Map as MapboxMap,
   AnyLayout,
@@ -65,23 +65,23 @@ interface MapboxGlLayerArgs {
   map: MapboxMap;
   layer: SupportedLayers;
   before?: string;
-  cacheKey?: string | false;
+  cacheKey?: string;
+  cache?: boolean;
   _sourceId?: string;
   onDidInsert?: (layer: SupportedLayers) => void;
   onDidUpdate?: (layer: SupportedLayers) => void;
 }
 
 export default class MapboxGlLayerComponent extends Component<MapboxGlLayerArgs> {
-  @service declare layersCache: LayersCacheService;
+  @service declare mapCache: MapCacheService;
 
   onUpdateArgs = onUpdateArgsHelper;
+  layerId = guidFor(this);
+  cacheKey?: string;
+  cache?: boolean;
 
   get _sourceId() {
     return this.args.layer?.source ?? this.args._sourceId;
-  }
-
-  get _layerId() {
-    return this.args.layer?.id ?? guidFor(this);
   }
 
   get _layerType() {
@@ -104,7 +104,7 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerArgs>
     // do this to pick up other properties like filter, re, metadata, source-layer, minzoom, maxzoom, etc
     let layer: SupportedLayers = {
       ...this.args.layer,
-      id: this._layerId,
+      id: this.layerId,
       type: this._layerType,
       source: this._sourceId,
       layout: this._layout,
@@ -121,16 +121,43 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerArgs>
   constructor(owner: any, args: MapboxGlLayerArgs) {
     super(owner, args);
 
-    const layer = this._layer;
-    const { map, before, cacheKey } = args;
+    const {
+      map,
+      before,
+      layer: { id: layerId },
+      cacheKey,
+      cache,
+    } = args;
+    // Setup layer id before getting the layer
+    if (layerId) {
+      this.layerId = layerId;
+    }
+    this.cacheKey = cacheKey;
+    this.cache = cache ?? false;
 
-    if (cacheKey && map.getLayer(layer.id)) {
-      map.setLayoutProperty(layer.id, 'visibility', 'visible');
+    const layer = this._layer;
+
+    // Show the layer if it was hidden, otherwise add it
+    if (map.getLayer(layerId)) {
+      map.setLayoutProperty(layerId, 'visibility', 'visible');
     } else {
       map.addLayer(layer, before);
     }
 
-    this.layersCache.push(map, layer.id);
+    // Register this layer to the cache
+    if (cacheKey && this.mapCache.hasMap(cacheKey)) {
+      let map = this.mapCache.getMap(cacheKey)!;
+      let cachedLayer = map.layers.get(layerId) ?? {
+        sourceId:
+          typeof this._sourceId === 'string' ? this._sourceId : undefined,
+        currentRenders: 0,
+      };
+      map.layers.set(layerId, {
+        ...cachedLayer,
+        currentRenders: cachedLayer.currentRenders + 1,
+      });
+    }
+
     this.args.onDidInsert?.(layer);
   }
 
@@ -168,20 +195,37 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerArgs>
   willDestroy() {
     super.willDestroy();
 
-    let { map, cacheKey } = this.args;
+    if (this.cacheKey && this.mapCache.hasMap(this.cacheKey)) {
+      let cachedMap = this.mapCache.getMap(this.cacheKey)!;
+      let layer = cachedMap.layers.get(this.layerId);
 
-    let layerCounter = this.layersCache.getCounter(map, this._layer.id);
+      if (layer) {
+        // Only if there's one instance of the layer, remove it
+        if (layer.currentRenders === 1) {
+          this.removeOrHideLayer();
+        }
 
-    // Only if there's one instance of the layer, remove it
-    if (layerCounter === 1) {
-      if (cacheKey) {
-        map.setLayoutProperty(this._layerId, 'visibility', 'none');
-      } else {
-        map.removeLayer(this._layerId);
+        // Substracts one to the layer counter
+        cachedMap.layers.set(this.layerId, {
+          ...layer,
+          currentRenders: layer.currentRenders - 1,
+        });
+        return;
       }
     }
 
-    // Substracts one to the layer counter
-    this.layersCache.pop(map, this._layer.id);
+    // Remove the layer if cache not available or layer not found in cache
+    this.removeOrHideLayer();
+  }
+
+  @action
+  removeOrHideLayer() {
+    if (this.cache) {
+      // If the layer is intended for resuing, hide it
+      this.args.map.setLayoutProperty(this.layerId, 'visibility', 'none');
+    } else {
+      // If the layer is not intended for resuing, remove the layer
+      this.args.map.removeLayer(this.layerId);
+    }
   }
 }

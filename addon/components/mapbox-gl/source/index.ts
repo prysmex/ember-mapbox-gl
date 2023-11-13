@@ -11,6 +11,8 @@ import {
   ImageSource,
   VectorSourceImpl,
 } from 'mapbox-gl';
+import { inject as service } from '@ember/service';
+import type MapCacheService from '@prysmex-engineering/ember-mapbox-gl/services/map-cache';
 
 /**
  * Adds a data source to the map. The API matches the mapbox [source docs](https://www.mapbox.com/mapbox-gl-js/api/#sources).
@@ -68,12 +70,16 @@ interface MapboxGlSourceArgs {
   map: MapboxMap;
   options: AnySourceData;
   sourceId?: string;
-  cacheKey?: string | false;
+  cacheKey?: string;
+  cache?: boolean;
 }
 
 export default class MapboxGlComponentSource extends Component<MapboxGlSourceArgs> {
+  @service declare mapCache: MapCacheService;
   onUpdateArgs = onUpdateArgsHelper;
   _skipUpdate = false;
+  cacheKey: string | undefined;
+  cache = false;
 
   get sourceId() {
     return this.args.sourceId ?? guidFor(this);
@@ -81,6 +87,8 @@ export default class MapboxGlComponentSource extends Component<MapboxGlSourceArg
 
   constructor(owner: any, args: MapboxGlSourceArgs) {
     super(owner, args);
+    this.cacheKey = args.cacheKey;
+    this.cache = args.cache ?? false;
 
     this.updateSource(this.args.options);
     // Skip the first udpate of the helper
@@ -124,14 +132,28 @@ export default class MapboxGlComponentSource extends Component<MapboxGlSourceArg
   willDestroy() {
     super.willDestroy();
 
-    if (!this.args.cacheKey) {
-      // wait for any layers to be removed before removing the source
-      scheduleOnce(
-        'afterRender',
-        this.args.map,
-        this.args.map.removeSource,
-        this.sourceId
-      );
+    // If the source is not intended for resuing, remove the source
+    if (!this.cache) {
+      // Get the map instance from the cache
+      if (this.cacheKey && this.mapCache.hasMap(this.cacheKey)) {
+        let map = this.mapCache.getMap(this.cacheKey)!;
+        let isBeingUsed = false;
+        map.layers.forEach((layer) => {
+          if (layer.sourceId === this.sourceId) {
+            isBeingUsed = true;
+          }
+        });
+
+        if (!isBeingUsed) {
+          // wait for any layers to be removed before removing the source
+          scheduleOnce(
+            'afterRender',
+            this.args.map,
+            this.args.map.removeSource,
+            this.sourceId
+          );
+        }
+      }
     }
   }
 }
