@@ -57,7 +57,7 @@ interface MapboxGlArgs {
 export default class MapboxGlComponent extends Component<MapboxGlArgs> {
   @service declare mapCache: MapCacheService;
 
-  @tracked _loader = new MapboxLoader();
+  @tracked _loader: MapboxLoader;
   // Save initial cache key
   _cacheKey: string | false = this.args.cacheKey ?? false;
 
@@ -99,6 +99,8 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
       options.container = mapContainer;
       element.appendChild(mapContainer);
 
+      this._loader = new MapboxLoader();
+
       this._loader.load(accessToken, options, this.mapLoaded);
     }
   }
@@ -120,6 +122,7 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
       // Validate if the map parent element is still the same as the wrapper
       if (wrapper === mapParentElement) {
         mapParentElement.removeChild(mapContainer!);
+        this._loader = undefined;
       }
     }
   }
@@ -132,5 +135,7 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
       this._loader.cancel();
       this.mapCache.deleteMap(this.cacheKey);
     }
+
+    this._loader = undefined;
   }
 }
