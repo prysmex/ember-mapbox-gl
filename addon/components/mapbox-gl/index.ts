@@ -122,7 +122,6 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
       // Validate if the map parent element is still the same as the wrapper
       if (wrapper === mapParentElement) {
         mapParentElement.removeChild(mapContainer!);
-        this._loader = undefined;
       }
     }
   }
