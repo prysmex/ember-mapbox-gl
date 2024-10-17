@@ -26,6 +26,9 @@ importers:
       ember-cli-typescript:
         specifier: ^5.1.6
         version: 5.3.0
+      geojson:
+        specifier: ^0.5.0
+        version: 0.5.0
     devDependencies:
       '@babel/eslint-parser':
         specifier: ^7.19.1
@@ -3118,6 +3121,10 @@ packages:
 
   geojson-vt@3.2.1:
     resolution: {integrity: sha512-EvGQQi/zPrDA6zr6BnJD/YhwAkBP8nnJ9emh3EnHQKVMfg/MRVtPbMYdgVy/IaEmn4UfagD2a6fafPDL5hbtwg==}
+
+  geojson@0.5.0:
+    resolution: {integrity: sha512-/Bx5lEn+qRF4TfQ5aLu6NH+UKtvIv7Lhc487y/c8BdludrCTpiWf9wyI0RTyqg49MFefIAvFDuEi5Dfd/zgNxQ==}
+    engines: {node: '>= 0.10'}
 
   get-caller-file@2.0.5:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
@@ -9698,6 +9705,8 @@ snapshots:
   gensync@1.0.0-beta.2: {}
 
   geojson-vt@3.2.1: {}
+
+  geojson@0.5.0: {}
 
   get-caller-file@2.0.5: {}
 
