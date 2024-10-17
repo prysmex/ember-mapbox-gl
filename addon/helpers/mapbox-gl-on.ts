@@ -86,8 +86,6 @@ export default class MapboxGlOn extends Helper {
           eventSource.off(_prevEvent, this._onEvent);
         }
       }
-
-      this.eventSource = undefined;
     }
 
     @action

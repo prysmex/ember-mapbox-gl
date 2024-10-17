@@ -136,7 +136,5 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
       this._loader?.cancel();
       this.mapCache.deleteMap(this.cacheKey);
     }
-
-    this._loader = undefined;
   }
 }
