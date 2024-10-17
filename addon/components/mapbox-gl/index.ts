@@ -57,7 +57,7 @@ interface MapboxGlArgs {
 export default class MapboxGlComponent extends Component<MapboxGlArgs> {
   @service declare mapCache: MapCacheService;
 
-  @tracked _loader: MapboxLoader;
+  @tracked _loader: MapboxLoader | undefined;
   // Save initial cache key
   _cacheKey: string | false = this.args.cacheKey ?? false;
 
