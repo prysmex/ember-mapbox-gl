@@ -108,7 +108,9 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
   @action
   mapLoaded(map: MapboxMap) {
     // Add map instance and DOM element to cache
-    this.mapCache.setMap(this.cacheKey, this._loader, this.args.cacheMetadata);
+    if (this._loader) {
+      this.mapCache.setMap(this.cacheKey, this._loader, this.args.cacheMetadata);
+    }
 
     this.args.mapLoaded?.(map);
   }
@@ -116,7 +118,7 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
   @action
   mapWrapperWillDestroy(wrapper: HTMLElement) {
     if (this.shouldCache) {
-      let mapContainer = this._loader.map?.getContainer();
+      let mapContainer = this._loader?.map?.getContainer();
       let mapParentElement = mapContainer?.parentElement;
 
       // Validate if the map parent element is still the same as the wrapper
@@ -131,7 +133,7 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
 
     // If map is not intended to be cached for later use, cancel the loader
     if (!this.shouldCache) {
-      this._loader.cancel();
+      this._loader?.cancel();
       this.mapCache.deleteMap(this.cacheKey);
     }
 
