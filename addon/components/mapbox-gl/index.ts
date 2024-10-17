@@ -5,8 +5,9 @@ import { inject as service } from '@ember/service';
 import { tracked } from '@glimmer/tracking';
 import { getOwner } from '@ember/application';
 import { Map as MapboxMap } from 'mapbox-gl';
-import type MapCacheService from '@prysmex-engineering/ember-mapbox-gl/services/map-cache';
 import { guidFor } from '@ember/object/internals';
+
+import type MapCacheService from '@prysmex-engineering/ember-mapbox-gl/services/map-cache';
 
 /**
  * Component that creates a new [mapbox-gl-js instance](https://www.mapbox.com/mapbox-gl-js/api/#map):
@@ -56,33 +57,27 @@ interface MapboxGlArgs {
 export default class MapboxGlComponent extends Component<MapboxGlArgs> {
   @service declare mapCache: MapCacheService;
 
-  @tracked _loader: MapboxLoader;
+  @tracked _loader = new MapboxLoader();
+  // Save initial cache key
+  _cacheKey: string | false = this.args.cacheKey ?? false;
 
-  /**
-   * Boolean to indicate if the map should be cached for later use
-   */
-  get cache() {
-    return this.args.cacheKey !== false;
+  get shouldCache() {
+    return this._cacheKey !== false;
   }
 
   get cacheKey() {
-    return this.args.cacheKey || guidFor(this);
-  }
-
-  constructor(owner: any, args: MapboxGlArgs) {
-    super(owner, args);
-    this._loader = new MapboxLoader();
+    return this._cacheKey || guidFor(this);
   }
 
   @action
   loadMap(element: HTMLElement) {
-    if (this.cache && this.mapCache.hasMap(this.cacheKey)) {
-      let {
-        mapLoader: mapLoader,
-        element: mapContainer,
-        metadata,
-      } = this.mapCache.getMap(this.cacheKey)!;
+    if (this.shouldCache && this.mapCache.hasMap(this.cacheKey)) {
+      let { mapLoader: mapLoader, metadata } = this.mapCache.getMap(
+        this.cacheKey
+      )!;
       this._loader = mapLoader;
+
+      let mapContainer = mapLoader.map?.getContainer()!;
 
       // Append the map html element into component
       element.appendChild(mapContainer);
@@ -93,12 +88,7 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
       }
 
       // Save new options after sending mapReloaded event
-      this.mapCache.setMap(
-        this.cacheKey,
-        mapLoader,
-        mapContainer,
-        this.args.cacheMetadata
-      );
+      this.mapCache.setMap(this.cacheKey, mapLoader, this.args.cacheMetadata);
     } else {
       //@ts-expect-error
       let config = getOwner(this).resolveRegistration('config:environment');
@@ -116,20 +106,29 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
   @action
   mapLoaded(map: MapboxMap) {
     // Add map instance and DOM element to cache
-    this.mapCache.setMap(
-      this.cacheKey,
-      this._loader,
-      map.getContainer(),
-      this.args.cacheMetadata
-    );
+    this.mapCache.setMap(this.cacheKey, this._loader, this.args.cacheMetadata);
 
     this.args.mapLoaded?.(map);
   }
 
+  @action
+  mapWrapperWillDestroy(wrapper: HTMLElement) {
+    if (this.shouldCache) {
+      let mapContainer = this._loader.map?.getContainer();
+      let mapParentElement = mapContainer?.parentElement;
+
+      // Validate if the map parent element is still the same as the wrapper
+      if (wrapper === mapParentElement) {
+        mapParentElement.removeChild(mapContainer!);
+      }
+    }
+  }
+
   willDestroy() {
     super.willDestroy();
+
     // If map is not intended to be cached for later use, cancel the loader
-    if (!this.cache) {
+    if (!this.shouldCache) {
       this._loader.cancel();
       this.mapCache.deleteMap(this.cacheKey);
     }

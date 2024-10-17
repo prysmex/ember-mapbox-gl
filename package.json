@@ -30,7 +30,6 @@
   },
   "resolutions": {
     "@embroider/macros": "^1.8.3",
-    "**/@embroider/macros": "^1.8.3",
     "@embroider/shared-internals": "^2.5.0",
     "@embroider/util": "^1.8.3",
     "@embroider/test-setup": "^1.8.3"

@@ -9,7 +9,6 @@ import MapboxLoader from '../-private/mapbox-loader';
 type layerId = string;
 interface CachedMap {
   mapLoader: MapboxLoader;
-  element: HTMLElement;
   metadata: {};
   layers: Map<layerId, { sourceId?: string, currentRenders: number}>;
 }
@@ -39,12 +38,10 @@ export default class MapCacheService extends Service {
    * Sets or update the map instance and html element of a map
    * @param {string} key - Id of map
    * @param {MapboxLoader} mapLoader - MapboxLoader Instance of map
-   * @param {HTMLElement} element - HTML element where map instance is rendered
    */
   setMap(
     key: string,
     mapLoader: MapboxLoader,
-    element: HTMLElement,
     metadata = {}
   ) {
     let defaultValue = {
@@ -53,7 +50,7 @@ export default class MapCacheService extends Service {
     if (this._cache.has(key)) {
       defaultValue = this._cache.get(key)!;
     }
-    let value = { ...defaultValue, ...{ mapLoader, element, metadata } };
+    let value = { ...defaultValue, ...{ mapLoader, metadata } };
 
     this._cache.set(key, value);
   }
