@@ -1,5 +1,6 @@
 import Service from '@ember/service';
-import MapboxLoader from '../-private/mapbox-loader';
+
+import type MapboxLoader from '../-private/mapbox-loader';
 
 /**
  * This service serves as a 'cache' for the map instances and their html elements.
@@ -9,8 +10,8 @@ import MapboxLoader from '../-private/mapbox-loader';
 type layerId = string;
 interface CachedMap {
   mapLoader: MapboxLoader;
-  metadata: {};
-  layers: Map<layerId, { sourceId?: string, currentRenders: number}>;
+  metadata: object;
+  layers: Map<layerId, { sourceId?: string; currentRenders: number }>;
 }
 
 export default class MapCacheService extends Service {
@@ -39,17 +40,15 @@ export default class MapCacheService extends Service {
    * @param {string} key - Id of map
    * @param {MapboxLoader} mapLoader - MapboxLoader Instance of map
    */
-  setMap(
-    key: string,
-    mapLoader: MapboxLoader,
-    metadata = {}
-  ) {
+  setMap(key: string, mapLoader: MapboxLoader, metadata = {}) {
     let defaultValue = {
       layers: new Map(),
     };
+
     if (this._cache.has(key)) {
       defaultValue = this._cache.get(key)!;
     }
+
     let value = { ...defaultValue, ...{ mapLoader, metadata } };
 
     this._cache.set(key, value);

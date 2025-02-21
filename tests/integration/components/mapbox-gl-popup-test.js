@@ -1,7 +1,8 @@
+import { click,render } from '@ember/test-helpers';
+import { hbs } from 'ember-cli-htmlbars';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { render, click } from '@ember/test-helpers';
-import { hbs } from 'ember-cli-htmlbars';
+
 import setupMap from '../../helpers/create-map';
 
 module('Integration | Component | mapbox gl popup', function (hooks) {

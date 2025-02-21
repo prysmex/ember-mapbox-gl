@@ -1,6 +1,18 @@
 import Helper from '@ember/component/helper';
 import { assert } from '@ember/debug';
-import { Map as MapboxMap, IControl, Control } from 'mapbox-gl';
+
+import type { IControl, Map as MapboxMap } from 'mapbox-gl';
+
+export interface MapboxGlControlSignature {
+  Args: {
+    Positional: [
+      IControl,
+      'top-right' | 'top-left' | 'bottom-right' | 'bottom-left',
+    ];
+    Named: { map: MapboxMap; cache?: boolean; idName?: string };
+  };
+  Return: void;
+}
 
 /**
  * Add a map control
@@ -16,22 +28,15 @@ import { Map as MapboxMap, IControl, Control } from 'mapbox-gl';
  * @argument {string} control
  * @argument {'top-left'|'top-right'|'bottom-left'|'bottom-right'} position
  */
-export default class MapboxGlControl extends Helper {
+export default class MapboxGlControl extends Helper<MapboxGlControlSignature> {
   map: MapboxMap | undefined;
   cache = false;
   idName: string | undefined;
-  _prevControl: IControl | Control | undefined;
+  _prevControl: IControl | undefined;
 
   compute(
-    [control, position]: [
-      IControl | Control,
-      'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
-    ],
-    {
-      map,
-      cache,
-      idName,
-    }: { map: MapboxMap; cache?: boolean, idName?: string }
+    [control, position]: MapboxGlControlSignature['Args']['Positional'],
+    { map, cache, idName }: MapboxGlControlSignature['Args']['Named'],
   ) {
     assert('mapbox-gl-call map is required', typeof map === 'object');
     this.map = map;
@@ -40,18 +45,21 @@ export default class MapboxGlControl extends Helper {
 
     assert(
       'Need to pass idName if control is meant to be cached',
-      !this.cache || idName
+      !this.cache || idName,
     );
 
     if (this._prevControl === undefined && this.cache) {
       // Get _prevControl if there is one present in the map instance
       this._prevControl =
-        // @ts-expect-error
-        this.map._controls.find((c) => c.idName == idName) ?? null;
+        // @ts-expect-error: _controls is not a property of Map
+        this.map._controls.find((c) => c.idName == idName) ?? undefined;
+
       if (this._prevControl) {
         // Unhide if it was hidden
-        // @ts-expect-error
+        // @ts-expect-error: _container is not a property of IControl
+        // eslint-disable-next-line
         this._prevControl._container.classList.remove('hide');
+
         return;
       }
     }
@@ -62,9 +70,10 @@ export default class MapboxGlControl extends Helper {
 
     if (control) {
       if (idName) {
-        // @ts-expect-error
+        // @ts-expect-error: idName is not a property of IControl
         control.idName = this.idName;
       }
+
       this.map.addControl(control, position);
       this._prevControl = control;
     } else {
@@ -78,7 +87,8 @@ export default class MapboxGlControl extends Helper {
     if (this._prevControl !== undefined) {
       if (this.cache) {
         // Hide the control instead of removing it
-        // @ts-expect-error
+        // @ts-expect-error: _container is not a property of IControl
+        // eslint-disable-next-line
         this._prevControl._container.classList.add('hide');
       } else {
         this.map?.removeControl(this._prevControl);

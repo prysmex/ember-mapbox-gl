@@ -1,19 +1,14 @@
 import Component from '@glimmer/component';
-import config from 'ember-get-config';
+import { hash } from '@ember/helper';
 import { guidFor } from '@ember/object/internals';
-import { helper } from '@ember/component/helper';
-import { action } from '@ember/object';
 import { inject as service } from '@ember/service';
-import MapCacheService from '@prysmex-engineering/ember-mapbox-gl/services/map-cache';
-import {
-  Map as MapboxMap,
-  AnyLayout,
-  AnyPaint,
-  CustomLayerInterface,
-  AnyLayer,
-} from 'mapbox-gl';
 
-type SupportedLayers = Exclude<AnyLayer, CustomLayerInterface>;
+import MapCacheService from '@prysmex-engineering/ember-mapbox-gl/services/map-cache';
+import config from 'ember-get-config';
+import { resource, use } from 'ember-resources';
+
+import type Owner from '@ember/owner';
+import type { Layer, LayerSpecification, Map as MapboxMap } from 'mapbox-gl';
 
 /**
  * Adds a data source to the map.
@@ -54,55 +49,58 @@ type SupportedLayers = Exclude<AnyLayer, CustomLayerInterface>;
  * @argument {string} before
  */
 
-const onUpdateArgsHelper = helper(function ([updateLayer, layer]: [
-  (layer: SupportedLayers) => boolean,
-  SupportedLayers
-]) {
-  updateLayer(layer);
-});
-
-interface MapboxGlLayerArgs {
+export interface MapboxGlLayerArgs {
   map: MapboxMap;
-  layer: SupportedLayers;
+  layer: LayerSpecification;
   before?: string;
   cacheKey?: string;
   cache?: boolean;
   _sourceId?: string;
-  onDidInsert?: (layer: SupportedLayers) => void;
-  onDidUpdate?: (layer: SupportedLayers) => void;
+  onDidInsert?: (layer: Layer) => void;
+  onDidUpdate?: (layer: Layer) => void;
 }
 
-export default class MapboxGlLayerComponent extends Component<MapboxGlLayerArgs> {
+export interface MapboxGlLayerSignature {
+  Args: MapboxGlLayerArgs;
+  Blocks: {
+    default: [
+      {
+        id: string;
+      },
+    ];
+  };
+}
+
+export default class MapboxGlLayerComponent extends Component<MapboxGlLayerSignature> {
   @service declare mapCache: MapCacheService;
 
-  onUpdateArgs = onUpdateArgsHelper;
   layerId = guidFor(this);
   cacheKey?: string;
   cache?: boolean;
 
-  get _sourceId() {
+  get _sourceId(): string | undefined {
     return this.args.layer?.source ?? this.args._sourceId;
   }
 
-  get _layerType() {
+  get _layerType(): Layer['type'] {
     return this.args.layer?.type ?? 'line';
   }
 
   get _envConfig() {
-    return (config['mapbox-gl'] ?? {})[this._layerType];
+    return config['mapbox-gl']?.layers?.[this._layerType] ?? {};
   }
 
-  get _layout() {
+  get _layout(): LayerSpecification['layout'] {
     return { ...this._envConfig?.layout, ...this.args.layer?.layout };
   }
 
-  get _paint() {
+  get _paint(): LayerSpecification['paint'] {
     return { ...this._envConfig?.paint, ...this.args.layer?.paint };
   }
 
-  get _layer() {
+  get _layer(): Layer {
     // do this to pick up other properties like filter, re, metadata, source-layer, minzoom, maxzoom, etc
-    let layer: SupportedLayers = {
+    const layer: Layer = {
       ...this.args.layer,
       id: this.layerId,
       type: this._layerType,
@@ -110,15 +108,18 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerArgs>
       layout: this._layout,
       paint: this._paint,
     };
+
     // Remove undefined keys
-    Object.keys(layer).forEach(
-      (key: keyof SupportedLayers) =>
-        layer[key] === undefined && delete layer[key]
-    );
+    Object.keys(layer).forEach((key) => {
+      if (layer[key as keyof Layer] === undefined) {
+        delete layer[key as keyof Layer];
+      }
+    });
+
     return layer;
   }
 
-  constructor(owner: any, args: MapboxGlLayerArgs) {
+  constructor(owner: Owner, args: MapboxGlLayerArgs) {
     super(owner, args);
 
     const {
@@ -128,12 +129,20 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerArgs>
       cacheKey,
       cache,
     } = args;
+
     // Setup layer id before getting the layer
     if (layerId) {
       this.layerId = layerId;
     }
+
     this.cacheKey = cacheKey;
     this.cache = cache ?? false;
+
+    console.log(
+      `Adding layer: ${this.layerId}, guidFor: ${guidFor(this)}, cahceKey: ${
+        this.cacheKey
+      }`,
+    );
 
     const layer = this._layer;
 
@@ -146,13 +155,12 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerArgs>
 
     // Register this layer to the cache
     if (cacheKey && this.mapCache.hasMap(cacheKey)) {
-      let map = this.mapCache.getMap(cacheKey)!;
-      let cachedLayer = map.layers.get(layerId) ?? {
-        sourceId:
-          typeof this._sourceId === 'string' ? this._sourceId : undefined,
+      const cachedMap = this.mapCache.getMap(cacheKey)!;
+      const cachedLayer = cachedMap.layers.get(layerId) ?? {
+        sourceId: this._sourceId,
         currentRenders: 0,
       };
-      map.layers.set(layerId, {
+      cachedMap.layers.set(layerId, {
         ...cachedLayer,
         currentRenders: cachedLayer.currentRenders + 1,
       });
@@ -161,17 +169,20 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerArgs>
     this.args.onDidInsert?.(layer);
   }
 
-  @action
-  updateLayer(layer: SupportedLayers): boolean {
+  @use updateLayer = resource(() => {
+    const layer = this._layer;
+
     if (layer.layout) {
-      Object.keys(layer.layout).forEach((key: keyof AnyLayout) => {
-        this.args.map.setLayoutProperty(layer.id, key, layer.layout![key]);
+      Object.keys(layer.layout).forEach((key) => {
+        // @ts-expect-error: Object.keys() doesn't guarantee the type of the key
+        this.args.map.setLayoutProperty(layer.id, key, layer.layout[key]);
       });
     }
 
     if (layer.paint) {
-      Object.keys(layer.paint).forEach((key: keyof AnyPaint) => {
-        this.args.map.setPaintProperty(layer.id, key, layer.paint![key]);
+      Object.keys(layer.paint).forEach((key) => {
+        // @ts-expect-error: Object.keys() doesn't guarantee the type of the key
+        this.args.map.setPaintProperty(layer.id, key, layer.paint[key]);
       });
     }
 
@@ -180,24 +191,31 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerArgs>
     }
 
     if (layer.minzoom || layer.maxzoom) {
-      let mapLayer = this.args.map.getLayer(layer.id) as SupportedLayers;
+      const mapLayer = this.args.map.getLayer(layer.id) as LayerSpecification;
       this.args.map.setLayerZoomRange(
         layer.id,
         layer.minzoom ?? mapLayer.minzoom ?? 0,
-        layer.maxzoom ?? mapLayer.maxzoom ?? 24
+        layer.maxzoom ?? mapLayer.maxzoom ?? 24,
       );
     }
 
     this.args.onDidUpdate?.(layer);
-    return true;
-  }
+
+    return;
+  });
 
   willDestroy() {
     super.willDestroy();
 
+    console.log(
+      `Will destroying layer: ${this.layerId}, guidFor: ${guidFor(
+        this,
+      )}, cahceKey: ${this.cacheKey}`,
+    );
+
     if (this.cacheKey && this.mapCache.hasMap(this.cacheKey)) {
-      let cachedMap = this.mapCache.getMap(this.cacheKey)!;
-      let layer = cachedMap.layers.get(this.layerId);
+      const cachedMap = this.mapCache.getMap(this.cacheKey)!;
+      const layer = cachedMap.layers.get(this.layerId);
 
       if (layer) {
         // Only if there's one instance of the layer, remove it
@@ -218,8 +236,12 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerArgs>
     this.removeOrHideLayer();
   }
 
-  @action
   removeOrHideLayer() {
+    console.log(
+      `Actually removing layer: ${this.layerId}, guidFor: ${guidFor(
+        this,
+      )}, cahceKey: ${this.cacheKey}`,
+    );
     if (this.cache) {
       // If the layer is intended for resuing, hide it
       this.args.map.setLayoutProperty(this.layerId, 'visibility', 'none');
@@ -228,4 +250,10 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerArgs>
       this.args.map.removeLayer(this.layerId);
     }
   }
+
+  <template>
+    {{this.updateLayer}}
+
+    {{yield (hash id=this.layerId)}}
+  </template>
 }

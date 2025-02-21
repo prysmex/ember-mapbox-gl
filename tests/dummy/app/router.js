@@ -1,4 +1,5 @@
 import AddonDocsRouter, { docsRoute } from 'ember-cli-addon-docs/router';
+
 import config from './config/environment';
 
 const Router = AddonDocsRouter.extend({
@@ -19,9 +20,7 @@ Router.map(function () {
 
     this.route('components', function () {
       this.route('mapbox-gl');
-      this.route('mapbox-gl-call');
       this.route('mapbox-gl-control');
-      this.route('mapbox-gl-image');
       this.route('mapbox-gl-layer');
       this.route('mapbox-gl-marker');
       this.route('mapbox-gl-on');

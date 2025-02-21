@@ -1,9 +1,11 @@
+import { clearRender, render } from '@ember/test-helpers';
+import { hbs } from 'ember-cli-htmlbars';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { clearRender, render } from '@ember/test-helpers';
-import setupMap from '../../helpers/create-map';
-import { hbs } from 'ember-cli-htmlbars';
+
 import Sinon from 'sinon';
+
+import setupMap from '../../helpers/create-map';
 
 module('Integration | Component | mapbox gl layer', function (hooks) {
   setupMap(hooks);

@@ -3,18 +3,23 @@
 module.exports = {
   name: require('./package').name,
 
-  // isDevelopingAddon() {
-  //   return true;
-  // },
+  isDevelopingAddon() {
+    return true;
+  },
 
   options: {
     autoImport: {
       skipBabel: [{ package: 'mapbox-gl', semverRange: '*' }],
     },
 
+    'ember-cli-babel': { enableTypeScriptTransform: true },
+
     babel: {
       // Ensure that `ember-auto-import` can handle the dynamic imports
-      plugins: [require.resolve('ember-auto-import/babel-plugin')],
+      plugins: [
+        require.resolve('ember-auto-import/babel-plugin'),
+        require.resolve('ember-concurrency/async-arrow-task-transform'),
+      ],
     },
   },
 

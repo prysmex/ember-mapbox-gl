@@ -2,40 +2,34 @@
 /dist/
 /tmp/
 
-# dependencies
-/bower_components/
-
 # misc
-/.bowerrc
 /.editorconfig
 /.ember-cli
 /.env*
-/.eslintignore
 /.eslintcache
-/.eslintrc.js
 /.git/
 /.github/
 /.gitignore
 /.prettierignore
 /.prettierrc.js
+/.stylelintignore
+/.stylelintrc.js
 /.template-lintrc.js
 /.travis.yml
 /.watchmanconfig
-/bower.json
-/config/deploy.js
-/config/ember-try.js
-/coverage/
+/CONTRIBUTING.md
 /ember-cli-build.js
-/jsconfig.json
+/eslint.config.mjs
 /testem.js
 /tests/
+/tsconfig.declarations.json
+/tsconfig.json
 /yarn-error.log
 /yarn.lock
 .gitkeep
 
 # ember-try
 /.node_modules.ember-try/
-/bower.json.ember-try
 /npm-shrinkwrap.json.ember-try
 /package.json.ember-try
 /package-lock.json.ember-try

@@ -7,6 +7,7 @@ module('Unit | Service | map-cache', function (hooks) {
   // Replace this with your real tests.
   test('it exists', function (assert) {
     let service = this.owner.lookup('service:map-cache');
+    
     assert.ok(service);
   });
 });

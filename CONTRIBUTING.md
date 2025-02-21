@@ -4,22 +4,22 @@
 
 * `git clone https://github.com/prysmex/ember-mapbox-gl`
 * `cd ember-mapbox-gl`
-* `yarn install`
+* `pnpm install`
 
 ## Linting
 
-* `yarn lint`
-* `yarn lint:fix`
+* `pnpm lint`
+* `pnpm lint:fix`
 
 ## Running tests
 
-* `ember test` – Runs the test suite on the current Ember version
-* `ember test --server` – Runs the test suite in "watch mode"
-* `ember try:each` – Runs the test suite against multiple Ember versions
+* `pnpm run test` – Runs the test suite on the current Ember version
+* `pnpm run test:ember -- --server` – Runs the test suite in "watch mode"
+* `pnpm run test:ember-compatibility` – Runs the test suite against multiple Ember versions
 
 ## Running the dummy application
 
-* `ember serve`
+* `pnpm run start`
 * Visit the dummy application at [http://localhost:4200](http://localhost:4200).
 
 For more information on using ember-cli, visit [https://ember-cli.com/](https://ember-cli.com/).
