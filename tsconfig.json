@@ -13,8 +13,12 @@
       "dummy/*": ["tests/dummy/app/*", "app/*"],
       "@prysmex-engineering/ember-mapbox-gl": ["addon"],
       "@prysmex-engineering/ember-mapbox-gl/*": ["addon/*"],
-      "@prysmex-engineering/ember-mapbox-gl/test-support": ["addon-test-support"],
-      "@prysmex-engineering/ember-mapbox-gl/test-support/*": ["addon-test-support/*"],
+      "@prysmex-engineering/ember-mapbox-gl/test-support": [
+        "addon-test-support"
+      ],
+      "@prysmex-engineering/ember-mapbox-gl/test-support/*": [
+        "addon-test-support/*"
+      ],
       "*": ["types/*"]
     },
     //These are copied from the tsconfig.declarations.json file since glint doesn't support different configs yet
@@ -24,7 +28,6 @@
     "noEmitOnError": false,
     "rootDir": "."
   },
-  "types": [
-    "ember-source/types"
-  ]
+  "exclude": ["tests/dummy"],
+  "types": ["ember-source/types"]
 }
