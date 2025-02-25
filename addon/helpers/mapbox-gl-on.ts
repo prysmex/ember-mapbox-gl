@@ -10,7 +10,7 @@ export interface MapboxGlOnSignature {
   Args: {
     Positional: [
       event: string,
-      layerId: string | ((ev: any) => void) | undefined,
+      layerId?: string | ((ev: any) => void),
       action?: (ev: any) => void,
     ];
     Named: { eventSource: EventSource };

@@ -9,7 +9,7 @@ import type {
 
 export interface MapboxGlTerrainSignature {
   Args: {
-    Positional: [
+    Positional?: [
       Partial<RasterDEMSourceSpecification>?,
       Partial<TerrainSpecification>?,
     ];
@@ -40,7 +40,10 @@ export default class MapboxGlTerrain extends Helper<MapboxGlTerrainSignature> {
   private map?: MapboxMap;
 
   compute(
-    [sourceSpec, terrainSpec]: MapboxGlTerrainSignature['Args']['Positional'],
+    [
+      sourceSpec,
+      terrainSpec,
+    ]: MapboxGlTerrainSignature['Args']['Positional'] = [],
     { map, sourceId }: MapboxGlTerrainSignature['Args']['Named'],
   ) {
     // Use provided sourceId or default to a unique identifier
