@@ -9,7 +9,7 @@ import type {
 
 export interface MapboxGlTerrainSignature {
   Args: {
-    Positional?: [
+    Positional: [
       Partial<RasterDEMSourceSpecification>?,
       Partial<TerrainSpecification>?,
     ];
