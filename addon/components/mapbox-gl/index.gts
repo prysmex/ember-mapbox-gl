@@ -16,6 +16,7 @@ import MapboxGlMarker from './marker';
 import MapboxGlPopup from './popup';
 import MapboxGlSource from './source';
 
+import type Owner from '@ember/owner';
 import type { WithBoundArgs } from '@glint/template';
 import type MapCacheService from '@prysmex-engineering/ember-mapbox-gl/services/map-cache';
 import type { Map as MapboxMap, MapOptions } from 'mapbox-gl';
@@ -91,7 +92,10 @@ export default class MapboxGlComponent extends Component<MapboxGlSignature> {
 
   @tracked _loader: MapboxLoader | undefined;
   // Save initial cache key
-  _cacheKey: string | false = this.args.cacheKey ?? false;
+  declare _cacheKey: string | false;
+  declare initOptions: MapboxGlArgs['initOptions'];
+  declare mapReloaded: MapboxGlArgs['mapReloaded'];
+  declare cacheMetadata: MapboxGlArgs['cacheMetadata'];
 
   get shouldCache() {
     return this._cacheKey !== false;
@@ -99,6 +103,16 @@ export default class MapboxGlComponent extends Component<MapboxGlSignature> {
 
   get cacheKey() {
     return this._cacheKey || guidFor(this);
+  }
+
+  constructor(owner: Owner, args: MapboxGlArgs) {
+    super(owner, args);
+
+    // Untracked arguments
+    this.initOptions = args.initOptions;
+    this.mapReloaded = args.mapReloaded;
+    this._cacheKey = args.cacheKey ?? false;
+    this.cacheMetadata = args.cacheMetadata;
   }
 
   loadMap = modifier((element: HTMLDivElement) => {
@@ -114,17 +128,17 @@ export default class MapboxGlComponent extends Component<MapboxGlSignature> {
         // Append the map html element into component
         element.appendChild(mapContainer);
         mapLoader.map.resize();
-        this.args.mapReloaded?.(mapLoader.map, metadata);
+        this.mapReloaded?.(mapLoader.map, metadata);
       }
 
       // Save new options after sending mapReloaded event
-      this.mapCache.setMap(this.cacheKey, mapLoader, this.args.cacheMetadata);
+      this.mapCache.setMap(this.cacheKey, mapLoader, this.cacheMetadata);
     } else {
       const mapContainer = document.createElement('div');
       const { accessToken, map } = config['mapbox-gl'];
       const options = {
         ...map,
-        ...this.args.initOptions,
+        ...this.initOptions,
         container: mapContainer,
       };
 
