@@ -8,12 +8,8 @@ type EventSource = MapboxMap | Popup | Marker;
 
 export interface MapboxGlOnSignature {
   Args: {
-    Positional: [
-      event: string,
-      layerId?: string | ((ev: any) => void),
-      action?: (ev: any) => void,
-    ];
-    Named: { eventSource: EventSource };
+    Positional: [event: string, action: (ev: any) => void];
+    Named: { eventSource: EventSource; layerId?: string };
   };
   Return: void;
 }
@@ -38,20 +34,14 @@ export default class MapboxGlOn extends Helper<MapboxGlOnSignature> {
   _prevLayerId: string | undefined;
 
   compute(
-    [event, layerId, action]: MapboxGlOnSignature['Args']['Positional'],
-    { eventSource }: MapboxGlOnSignature['Args']['Named'],
+    [event, action]: MapboxGlOnSignature['Args']['Positional'],
+    { eventSource, layerId }: MapboxGlOnSignature['Args']['Named'],
   ) {
     assert('mapbox-gl-event requires an eventSource', isPresent(eventSource));
     assert(
       `mapbox-gl-event requires event to be a string, was ${event}`,
       typeof event === 'string',
     );
-
-    // Calculate action and layerId on positonal params as layerId is optional
-    if (typeof layerId === 'function') {
-      action = layerId;
-      layerId = undefined;
-    }
 
     // Save action for _onEvent
     assert('mapbox-gl-event requires an action', isPresent(action));
