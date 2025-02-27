@@ -4,8 +4,11 @@ import type { Map as MapboxMap, MapEventOf } from 'mapbox-gl';
  * Waits until a Mapbox GL JS map instance has its style fully loaded.
  *
  * Because the Mapbox `'styledata'` event can fire before the style is completely loaded,
- * this function waits for the event, checks using `isStyleLoaded()`, and if not loaded,
- * recurses to wait for the next event.
+ * this function waits for the 'idle' event, checks using `isStyleLoaded()`, and if not loaded,
+ * recurses to wait for the next 'idle' event.
+ *
+ * ISSUE: map.isStyleLoaded() is unreliable
+ * Ref: https://github.com/mapbox/mapbox-gl-js/issues/8691
  *
  * It also listens for the `'error'` event to reject the promise if an error occurs.
  *
@@ -33,12 +36,10 @@ export default async function waitForStyleLoaded(
       // Check if the style is now fully loaded.
       if (map.isStyleLoaded()) {
         map.off('error', onError);
-        console.log('Style loaded');
         resolve();
       } else {
         // The event fired but the style is still not loaded.
         // Reattach the listener to wait for the next 'styledata' event.
-        console.log('Style not loaded yet, ', map.isStyleLoaded());
         map.once('idle', onStyleData);
       }
     };

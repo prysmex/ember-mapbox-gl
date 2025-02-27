@@ -98,16 +98,9 @@ export default class MapboxGlSourceComponent extends Component<MapboxGlSourceSig
     super(owner, args);
     this.cacheKey = args.cacheKey;
     this.cache = args.cache ?? false;
-
-    console.log(
-      `Adding source: ${this.sourceId}, guidFor: ${guidFor(this)}, cahceKey: ${
-        this.cacheKey
-      }`,
-    );
   }
 
   @use updateSource = resource(() => {
-    console.log('Upserting source', this.sourceId);
     void this.upsertSourceTask.perform(this.args.options);
   });
 
@@ -128,19 +121,9 @@ export default class MapboxGlSourceComponent extends Component<MapboxGlSourceSig
         }
 
         if (!this.args.map.isStyleLoaded()) {
-          console.log(
-            `Waiting style to add source: ${this.sourceId}, guidFor: ${guidFor(
-              this,
-            )}, cahceKey: ${this.cacheKey}`,
-          );
           await waitForStyleLoaded(this.args.map);
         }
 
-        console.log(
-          `map.addSource: ${this.sourceId}, guidFor: ${guidFor(
-            this,
-          )}, cahceKey: ${this.cacheKey}`,
-        );
         try {
           this.args.map.addSource(this.sourceId, _options);
         } catch (e) {
@@ -148,11 +131,6 @@ export default class MapboxGlSourceComponent extends Component<MapboxGlSourceSig
         }
         // this.args.map.addSource(this.sourceId, _options);
       } else {
-        console.log(
-          `Updating source: ${this.sourceId}, guidFor: ${guidFor(
-            this,
-          )}, cahceKey: ${this.cacheKey}`,
-        );
         if (options.type === 'geojson' && options?.data) {
           (source as GeoJSONSource).setData(options.data);
         } else if (options.type === 'image' && options?.coordinates) {
@@ -168,12 +146,6 @@ export default class MapboxGlSourceComponent extends Component<MapboxGlSourceSig
   willDestroy() {
     super.willDestroy();
 
-    console.log(
-      `Will destroy source: ${this.sourceId}, guidFor: ${guidFor(
-        this,
-      )}, cahceKey: ${this.cacheKey}`,
-    );
-
     // If the source is not intended for resuing, remove the source
     if (!this.cache) {
       // Get the map instance from the cache
@@ -187,11 +159,6 @@ export default class MapboxGlSourceComponent extends Component<MapboxGlSourceSig
         });
 
         if (!isBeingUsed) {
-          console.log(
-            `Actually destroying source: ${this.sourceId}, guidFor: ${guidFor(
-              this,
-            )}, cahceKey: ${this.cacheKey}`,
-          );
           // wait for any layers to be removed before removing the source
           // eslint-disable-next-line ember/no-runloop
           scheduleOnce(

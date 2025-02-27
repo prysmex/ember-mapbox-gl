@@ -141,12 +141,6 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerSigna
     this.cacheKey = cacheKey;
     this.cache = cache ?? false;
 
-    console.log(
-      `Adding layer: ${this.layerId}, guidFor: ${guidFor(this)}, cahceKey: ${
-        this.cacheKey
-      }`,
-    );
-
     const layer = this._layer;
 
     // Show the layer if it was hidden, otherwise add it
@@ -210,12 +204,6 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerSigna
   willDestroy() {
     super.willDestroy();
 
-    console.log(
-      `Will destroying layer: ${this.layerId}, guidFor: ${guidFor(
-        this,
-      )}, cahceKey: ${this.cacheKey}`,
-    );
-
     if (this.cacheKey && this.mapCache.hasMap(this.cacheKey)) {
       const cachedMap = this.mapCache.getMap(this.cacheKey)!;
       const layer = cachedMap.layers.get(this.layerId);
@@ -240,11 +228,6 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerSigna
   }
 
   removeOrHideLayer() {
-    console.log(
-      `Actually removing layer: ${this.layerId}, guidFor: ${guidFor(
-        this,
-      )}, cahceKey: ${this.cacheKey}`,
-    );
     if (this.cache) {
       // If the layer is intended for resuing, hide it
       this.args.map.setLayoutProperty(this.layerId, 'visibility', 'none');

@@ -94,8 +94,6 @@ export default class MapboxGlTerrain extends Helper<MapboxGlTerrainSignature> {
   willDestroy() {
     super.willDestroy();
 
-    console.log('Destroying terrain helper');
-
     // Clean up source and terrain when the helper is destroyed
     if (this.map) {
       if (this.map.getTerrain()) {
@@ -103,20 +101,10 @@ export default class MapboxGlTerrain extends Helper<MapboxGlTerrainSignature> {
       }
 
       if (this.map.isStyleLoaded()) {
-        console.log(
-          'Removing source',
-          this.sourceId,
-          this.map.getSource(this.sourceId),
-        );
         this.map.removeSource(this.sourceId);
       } else {
         this.map.once('styledata', () => {
           if (this.map) {
-            console.log(
-              'Removing scheduled source',
-              this.sourceId,
-              this.map.getSource(this.sourceId),
-            );
             this.map.removeSource(this.sourceId);
           }
         });
