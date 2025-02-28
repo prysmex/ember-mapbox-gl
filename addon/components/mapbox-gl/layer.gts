@@ -54,7 +54,7 @@ type OptionalProperty<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export interface MapboxGlLayerArgs {
   map: MapboxMap;
-  layer: OptionalProperty<LayerSpecification, 'source'>;
+  layer?: OptionalProperty<LayerSpecification, 'source'>;
   before?: string;
   cacheKey?: string;
   cache?: boolean;
@@ -77,9 +77,9 @@ export interface MapboxGlLayerSignature {
 export default class MapboxGlLayerComponent extends Component<MapboxGlLayerSignature> {
   @service declare mapCache: MapCacheService;
 
-  layerId = guidFor(this);
-  cacheKey?: string;
-  cache?: boolean;
+  declare layerId: string;
+  declare cacheKey?: string;
+  declare cache?: boolean;
 
   get _sourceId(): string | undefined {
     return this.args.layer?.source ?? this.args._sourceId;
@@ -125,18 +125,10 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerSigna
   constructor(owner: Owner, args: MapboxGlLayerArgs) {
     super(owner, args);
 
-    const {
-      map,
-      before,
-      layer: { id: layerId },
-      cacheKey,
-      cache,
-    } = args;
+    const { map, before, layer: layerSpec, cacheKey, cache } = args;
 
     // Setup layer id before getting the layer
-    if (layerId) {
-      this.layerId = layerId;
-    }
+    this.layerId = layerSpec?.id ?? guidFor(this);
 
     this.cacheKey = cacheKey;
     this.cache = cache ?? false;
@@ -144,8 +136,8 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerSigna
     const layer = this._layer;
 
     // Show the layer if it was hidden, otherwise add it
-    if (map.getLayer(layerId)) {
-      map.setLayoutProperty(layerId, 'visibility', 'visible');
+    if (map.getLayer(this.layerId)) {
+      map.setLayoutProperty(this.layerId, 'visibility', 'visible');
     } else {
       map.addLayer(layer, before);
     }
@@ -153,11 +145,11 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerSigna
     // Register this layer to the cache
     if (cacheKey && this.mapCache.hasMap(cacheKey)) {
       const cachedMap = this.mapCache.getMap(cacheKey)!;
-      const cachedLayer = cachedMap.layers.get(layerId) ?? {
+      const cachedLayer = cachedMap.layers.get(this.layerId) ?? {
         sourceId: this._sourceId,
         currentRenders: 0,
       };
-      cachedMap.layers.set(layerId, {
+      cachedMap.layers.set(this.layerId, {
         ...cachedLayer,
         currentRenders: cachedLayer.currentRenders + 1,
       });
