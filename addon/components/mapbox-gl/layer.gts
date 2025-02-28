@@ -49,12 +49,9 @@ import type { Layer, LayerSpecification, Map as MapboxMap } from 'mapbox-gl';
  * @argument {string} before
  */
 
-// Helper type to make a single property optional
-type OptionalProperty<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-
 export interface MapboxGlLayerArgs {
   map: MapboxMap;
-  layer?: OptionalProperty<LayerSpecification, 'source'>;
+  layer?: Partial<LayerSpecification>;
   before?: string;
   cacheKey?: string;
   cache?: boolean;
