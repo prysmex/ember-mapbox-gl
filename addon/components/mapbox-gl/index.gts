@@ -16,7 +16,6 @@ import MapboxGlMarker from './marker';
 import MapboxGlPopup from './popup';
 import MapboxGlSource from './source';
 
-import type Owner from '@ember/owner';
 import type { WithBoundArgs } from '@glint/template';
 import type MapCacheService from '@prysmex-engineering/ember-mapbox-gl/services/map-cache';
 import type { Map as MapboxMap, MapOptions } from 'mapbox-gl';
@@ -48,9 +47,7 @@ import type { Map as MapboxMap, MapOptions } from 'mapbox-gl';
  * @argument {string} cacheKey
  *
  * @yield {Hash} map
- * @yield {Component} map.call
  * @yield {Component} map.control
- * @yield {Component} map.image
  * @yield {Component} map.layer
  * @yield {Component} map.marker
  * @yield {Component} map.on
@@ -92,10 +89,8 @@ export default class MapboxGlComponent extends Component<MapboxGlSignature> {
 
   @tracked _loader: MapboxLoader | undefined;
   // Save initial cache key
-  declare _cacheKey: string | false;
-  declare initOptions: MapboxGlArgs['initOptions'];
-  declare mapReloaded: MapboxGlArgs['mapReloaded'];
-  declare cacheMetadata: MapboxGlArgs['cacheMetadata'];
+  _cacheKey: string | false = this.args.cacheKey ?? false;
+  _wrapperElement: HTMLDivElement | undefined;
 
   get shouldCache() {
     return this._cacheKey !== false;
@@ -105,17 +100,14 @@ export default class MapboxGlComponent extends Component<MapboxGlSignature> {
     return this._cacheKey || guidFor(this);
   }
 
-  constructor(owner: Owner, args: MapboxGlArgs) {
-    super(owner, args);
-
-    // Untracked arguments
-    this.initOptions = args.initOptions;
-    this.mapReloaded = args.mapReloaded;
-    this._cacheKey = args.cacheKey ?? false;
-    this.cacheMetadata = args.cacheMetadata;
-  }
-
   loadMap = modifier((element: HTMLDivElement) => {
+    if (this._loader) {
+      // Map is already loaded, do nothing
+      return;
+    }
+
+    this._wrapperElement = element;
+
     let loader: MapboxLoader | undefined;
 
     if (this.shouldCache && this.mapCache.hasMap(this.cacheKey)) {
@@ -128,17 +120,17 @@ export default class MapboxGlComponent extends Component<MapboxGlSignature> {
         // Append the map html element into component
         element.appendChild(mapContainer);
         mapLoader.map.resize();
-        this.mapReloaded?.(mapLoader.map, metadata);
+        this.args.mapReloaded?.(mapLoader.map, metadata);
       }
 
       // Save new options after sending mapReloaded event
-      this.mapCache.setMap(this.cacheKey, mapLoader, this.cacheMetadata);
+      this.mapCache.setMap(this.cacheKey, mapLoader, this.args.cacheMetadata);
     } else {
       const mapContainer = document.createElement('div');
       const { accessToken, map } = config['mapbox-gl'];
       const options = {
         ...map,
-        ...this.initOptions,
+        ...this.args.initOptions,
         container: mapContainer,
       };
 
@@ -148,18 +140,6 @@ export default class MapboxGlComponent extends Component<MapboxGlSignature> {
     }
 
     this._loader = loader;
-
-    return () => {
-      if (this.shouldCache) {
-        const mapContainer = loader?.map?.getContainer();
-        const mapParentElement = mapContainer?.parentElement;
-
-        // Validate if the map parent element is still the same as the wrapper
-        if (element === mapParentElement) {
-          mapParentElement.removeChild(mapContainer!);
-        }
-      }
-    };
   });
 
   mapLoaded = (map: MapboxMap) => {
@@ -178,8 +158,20 @@ export default class MapboxGlComponent extends Component<MapboxGlSignature> {
   willDestroy() {
     super.willDestroy();
 
-    // If map is not intended to be cached for later use, cancel the loader
-    if (!this.shouldCache) {
+    if (this.shouldCache) {
+      const mapContainer = this._loader?.map?.getContainer();
+      const mapParentElement = mapContainer?.parentElement;
+
+      // Validate if the map parent element is still the same as the wrapper
+      if (
+        this._wrapperElement &&
+        mapContainer &&
+        this._wrapperElement === mapParentElement
+      ) {
+        mapParentElement.removeChild(mapContainer);
+      }
+    } else {
+      // If map is not intended to be cached for later use, cancel the loader
       this._loader?.cancel();
       this.mapCache.deleteMap(this.cacheKey);
     }
