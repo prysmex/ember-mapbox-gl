@@ -101,7 +101,7 @@ export default class MapboxGlComponent extends Component<MapboxGlSignature> {
   }
 
   loadMap = modifier((element: HTMLDivElement) => {
-    if (this._loader) {
+    if (this._wrapperElement) {
       // Map is already loaded, do nothing
       return;
     }
