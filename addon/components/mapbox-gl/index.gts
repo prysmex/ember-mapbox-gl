@@ -175,6 +175,10 @@ export default class MapboxGlComponent extends Component<MapboxGlSignature> {
       this._loader?.cancel();
       this.mapCache.deleteMap(this.cacheKey);
     }
+
+    // Clean up
+    this._loader = undefined;
+    this._wrapperElement = undefined;
   }
 
   <template>

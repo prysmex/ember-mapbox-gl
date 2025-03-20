@@ -49,7 +49,7 @@ export default class MapCacheService extends Service {
       defaultValue = this._cache.get(key)!;
     }
 
-    let value = { ...defaultValue, ...{ mapLoader, metadata } };
+    const value = { ...defaultValue, ...{ mapLoader, metadata } };
 
     this._cache.set(key, value);
   }
