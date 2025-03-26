@@ -70,7 +70,7 @@ export default class MapboxLoader {
     if (this._isCancelled) {
       throw new MapboxLoaderCancelledError();
     }
-    
+    this.MapboxGl = MapboxModule;
     MapboxModule.accessToken = accessToken;
 
     if (!MapboxModule.supported()) {
