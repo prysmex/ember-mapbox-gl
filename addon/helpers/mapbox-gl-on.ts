@@ -86,6 +86,11 @@ export default class MapboxGlOn extends Helper {
           eventSource.off(_prevEvent, this._onEvent);
         }
       }
+
+      this.eventSource = undefined;
+      this._action = undefined;
+      this._prevEvent = undefined;
+      this._prevLayerId = undefined;
     }
 
     @action

@@ -6,6 +6,7 @@ import { tracked } from '@glimmer/tracking';
 import { getOwner } from '@ember/application';
 import { Map as MapboxMap } from 'mapbox-gl';
 import { guidFor } from '@ember/object/internals';
+import { next } from '@ember/runloop';
 
 import type MapCacheService from '@prysmex-engineering/ember-mapbox-gl/services/map-cache';
 
@@ -93,7 +94,9 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
       //@ts-expect-error
       let config = getOwner(this).resolveRegistration('config:environment');
       const { accessToken, map } = config['mapbox-gl'];
-      const options = { ...map, ...this.args.initOptions };
+      const options = JSON.parse(
+        JSON.stringify({ ...map, ...this.args.initOptions })
+      );
 
       let mapContainer = document.createElement('div');
       options.container = mapContainer;
@@ -109,7 +112,11 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
   mapLoaded(map: MapboxMap) {
     // Add map instance and DOM element to cache
     if (this._loader) {
-      this.mapCache.setMap(this.cacheKey, this._loader, this.args.cacheMetadata);
+      this.mapCache.setMap(
+        this.cacheKey,
+        this._loader,
+        this.args.cacheMetadata
+      );
     }
 
     this.args.mapLoaded?.(map);
@@ -136,5 +143,11 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
       this._loader?.cancel();
       this.mapCache.deleteMap(this.cacheKey);
     }
+
+    const clean = () => {
+      this._loader = null;
+    };
+    
+    next(this, clean);
   }
 }
