@@ -2,7 +2,6 @@ import { next } from '@ember/runloop';
 import { Promise as RsvpPromise } from 'rsvp';
 import mapboxgl, { Map as MapboxMap, MapboxOptions, ErrorEvent } from 'mapbox-gl';
 import { tracked } from '@glimmer/tracking';
-import { action } from '@ember/object';
 
 export type MapboxGL = typeof mapboxgl;
 export class MapboxLoaderCancelledError extends Error {}
@@ -27,14 +26,11 @@ export default class MapboxLoader {
     | MapboxError
     | undefined;
   @tracked isLoaded = false;
-
-  _accessToken: string | undefined;
-  _mapOptions: MapboxOptions | undefined;
-  _extOnMapLoaded: ((map: MapboxMap) => void) | undefined;
+  
   _isCancelled = false;
   _isLoading = false;
 
-  load(
+  async load(
     accessToken: string,
     options: MapboxOptions,
     onMapLoaded?: (map: MapboxMap) => void
@@ -44,43 +40,46 @@ export default class MapboxLoader {
     }
 
     this._isLoading = true;
-    this._accessToken = accessToken;
-    this._mapOptions = options;
-    this._extOnMapLoaded = onMapLoaded;
 
-    import('mapbox-gl')
-      .then(this._onModule)
-      .then(this._onMapLoaded)
-      .then(this._onComplete)
-      .catch(this._onError);
+    try {
+      const { default: MapboxModule } = await import('mapbox-gl');
+      await this._onModule(MapboxModule, accessToken, options);
+      await this._onMapLoaded(onMapLoaded);
+      await this._onComplete();
+    } catch (e) {
+      this._onError(e);
+    }
   }
 
   cancel() {
-    this._isCancelled = true;
-
     if (this.map !== undefined) {
       // some map users may be late doing cleanup (seen with mapbox-draw-gl),
       // so don't remove the map until the next tick
-      next(this.map, this.map.remove);
+
+      const cancel = () => {
+        this.map.remove();
+        this.map = undefined;
+        this._isCancelled = true;
+      };
+
+      next(this, cancel);
     }
   }
 
-  @action
-  _onModule({ default: MapboxModule }: { default: MapboxGL }) {
+  _onModule(MapboxModule: MapboxGL, accessToken: string, mapOptions: MapboxOptions) {
     if (this._isCancelled) {
       throw new MapboxLoaderCancelledError();
     }
-
     this.MapboxGl = MapboxModule;
-    this.MapboxGl.accessToken = this._accessToken!;
+    MapboxModule.accessToken = accessToken;
 
-    if (!this.MapboxGl.supported()) {
+    if (!MapboxModule.supported()) {
       throw new MapboxSupportError(
         'mapbox-gl not supported in current browser'
       );
     }
 
-    const map = (this.map = new this.MapboxGl.Map(this._mapOptions));
+    const map = (this.map = new MapboxModule.Map(mapOptions));
 
     return new RsvpPromise((resolve, reject) => {
       const listeners = {
@@ -102,20 +101,20 @@ export default class MapboxLoader {
     });
   }
 
-  @action
-  _onMapLoaded() {
+
+  _onMapLoaded(cb: ((map: MapboxMap) => void) | undefined) {
     if (this._isCancelled) {
       throw new MapboxLoaderCancelledError();
     }
 
-    if (typeof this._extOnMapLoaded === 'function' && this.map !== undefined) {
-      return this._extOnMapLoaded(this.map);
+    if (typeof cb === 'function' && this.map !== undefined) {
+      return cb(this.map);
     }
 
     return null;
   }
 
-  @action
+
   _onComplete() {
     this._isLoading = false;
 
@@ -126,7 +125,6 @@ export default class MapboxLoader {
     this.isLoaded = true;
   }
 
-  @action
   _onError(err: MapboxLoaderCancelledError | MapboxSupportError | MapboxError) {
     this._isLoading = false;
 
