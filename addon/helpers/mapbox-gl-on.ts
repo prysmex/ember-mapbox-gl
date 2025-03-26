@@ -72,6 +72,12 @@ export default class MapboxGlOn extends Helper<MapboxGlOnSignature> {
     if (eventSource && _prevEvent) {
       this.removeEvent(eventSource, _prevEvent, _prevLayerId);
     }
+
+    // Cleanup
+    this.eventSource = undefined;
+    this._action = undefined;
+    this._prevEvent = undefined;
+    this._prevLayerId = undefined;
   }
 
   _onEvent = (ev: any) => {

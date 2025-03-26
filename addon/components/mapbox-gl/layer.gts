@@ -77,6 +77,7 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerSigna
   declare layerId: string;
   declare cacheKey?: string;
   declare cache?: boolean;
+  declare map?: MapboxMap;
 
   get _sourceId(): string | undefined {
     return this.args.layer?.source ?? this.args._sourceId;
@@ -129,6 +130,8 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerSigna
 
     this.cacheKey = cacheKey;
     this.cache = cache ?? false;
+    // Save map for willDestroy
+    this.map = map;
 
     const layer = this._layer;
 
@@ -214,15 +217,18 @@ export default class MapboxGlLayerComponent extends Component<MapboxGlLayerSigna
 
     // Remove the layer if cache not available or layer not found in cache
     this.removeOrHideLayer();
+    this.map = undefined;
   }
 
   removeOrHideLayer() {
-    if (this.cache) {
-      // If the layer is intended for resuing, hide it
-      this.args.map.setLayoutProperty(this.layerId, 'visibility', 'none');
-    } else {
-      // If the layer is not intended for resuing, remove the layer
-      this.args.map.removeLayer(this.layerId);
+    if (this.map) {
+      if (this.cache) {
+        // If the layer is intended for resuing, hide it
+        this.map.setLayoutProperty(this.layerId, 'visibility', 'none');
+      } else {
+        // If the layer is not intended for resuing, remove the layer
+        this.map.removeLayer(this.layerId);
+      }
     }
   }
 

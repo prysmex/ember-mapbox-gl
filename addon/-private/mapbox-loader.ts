@@ -30,9 +30,6 @@ export default class MapboxLoader {
     | undefined;
   @tracked isLoaded = false;
 
-  _accessToken: string;
-  _mapOptions: MapOptions;
-  _extOnMapLoaded: ((map: MapboxMap) => void) | undefined;
   _isCancelled = false;
   _isLoading = false;
 
@@ -41,44 +38,73 @@ export default class MapboxLoader {
     options: MapOptions,
     onMapLoaded?: (map: MapboxMap) => void,
   ) {
-    this._isLoading = true;
-    this._accessToken = accessToken;
-    this._mapOptions = options;
-    this._extOnMapLoaded = onMapLoaded;
+    void this.load(accessToken, options, onMapLoaded);
+  }
 
-    import('mapbox-gl')
-      .then(this._onModule)
-      .then(this._onMapLoaded)
-      .then(this._onComplete)
-      .catch(this._onError);
+  async load(
+    accessToken: string,
+    options: MapOptions,
+    onMapLoaded?: (map: MapboxMap) => void,
+  ): Promise<void> {
+    if (this.isLoaded || this._isLoading || this._isCancelled) {
+      return;
+    }
+
+    this._isLoading = true;
+
+    try {
+      const { default: MapboxModule } = await import('mapbox-gl');
+      await this._onModule(MapboxModule, accessToken, options);
+      this._onMapLoaded(onMapLoaded);
+      this._onComplete();
+    } catch (e) {
+      if (
+        e instanceof MapboxLoaderCancelledError ||
+        e instanceof MapboxSupportError ||
+        e instanceof MapboxError
+      ) {
+        this._onError(e);
+      } else {
+        this._onError(new Error('An unknown error occurred'));
+      }
+    }
   }
 
   cancel() {
     this._isCancelled = true;
 
-    if (this.map !== undefined) {
-      // some map users may be late doing cleanup (seen with mapbox-draw-gl),
-      // so don't remove the map until the next tick
-      // eslint-disable-next-line ember/no-runloop
-      next(this.map, 'remove');
-    }
+    const cancel = () => {
+      if (this.map !== undefined) {
+        this.map.remove();
+        this.map = undefined;
+      }
+    };
+
+    // some map users may be late doing cleanup (seen with mapbox-draw-gl),
+    // so don't remove the map until the next tick
+    // eslint-disable-next-line ember/no-runloop
+    next(this, cancel);
   }
 
-  _onModule = ({ default: MapboxModule }: { default: MapboxGL }) => {
+  _onModule(
+    MapboxModule: MapboxGL,
+    accessToken: string,
+    mapOptions: MapOptions,
+  ) {
     if (this._isCancelled) {
       throw new MapboxLoaderCancelledError();
     }
 
     this.MapboxGl = MapboxModule;
-    this.MapboxGl.accessToken = this._accessToken;
+    this.MapboxGl.accessToken = accessToken;
 
-    if (!this.MapboxGl.supported()) {
+    if (!MapboxModule.supported()) {
       throw new MapboxSupportError(
         'mapbox-gl not supported in current browser',
       );
     }
 
-    const map = (this.map = new this.MapboxGl.Map(this._mapOptions));
+    const map = (this.map = new MapboxModule.Map(mapOptions));
 
     return new RsvpPromise((resolve, reject) => {
       const listeners = {
@@ -98,21 +124,21 @@ export default class MapboxLoader {
       map.on('load', listeners.onLoad);
       map.on('error', listeners.onError);
     });
-  };
+  }
 
-  _onMapLoaded = () => {
+  _onMapLoaded = (
+    onMapLoaded: ((map: MapboxMap) => void) | undefined,
+  ): void => {
     if (this._isCancelled) {
       throw new MapboxLoaderCancelledError();
     }
 
-    if (typeof this._extOnMapLoaded === 'function' && this.map !== undefined) {
-      return this._extOnMapLoaded(this.map);
+    if (typeof onMapLoaded === 'function' && this.map !== undefined) {
+      onMapLoaded(this.map);
     }
-
-    return null;
   };
 
-  _onComplete = () => {
+  _onComplete = (): void => {
     this._isLoading = false;
 
     if (this._isCancelled) {
