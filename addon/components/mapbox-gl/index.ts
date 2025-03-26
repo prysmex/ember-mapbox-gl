@@ -94,9 +94,7 @@ export default class MapboxGlComponent extends Component<MapboxGlArgs> {
       //@ts-expect-error
       let config = getOwner(this).resolveRegistration('config:environment');
       const { accessToken, map } = config['mapbox-gl'];
-      const options = JSON.parse(
-        JSON.stringify({ ...map, ...this.args.initOptions })
-      );
+      const options = { ...map, ...this.args.initOptions };
 
       let mapContainer = document.createElement('div');
       options.container = mapContainer;
