@@ -30,7 +30,7 @@ export default class MapboxLoader {
   _isCancelled = false;
   _isLoading = false;
 
-  load(
+  async load(
     accessToken: string,
     options: MapboxOptions,
     onMapLoaded?: (map: MapboxMap) => void
