@@ -11,6 +11,9 @@ importers:
       '@babel/core':
         specifier: ^7.26.0
         version: 7.26.0
+      '@ember/render-modifiers':
+        specifier: ^2.0.4
+        version: 2.1.0(@babel/core@7.26.0)(@glint/template@1.5.1)(ember-source@6.1.0(@glimmer/component@1.1.2(@babel/core@7.26.0))(@glint/template@1.5.1)(rsvp@4.8.5)(webpack@5.97.1))
       ember-auto-import:
         specifier: ^2.10.0
         version: 2.10.0(@glint/template@1.5.1)(webpack@5.97.1)

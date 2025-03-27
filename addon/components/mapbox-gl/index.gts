@@ -2,13 +2,14 @@ import Component from '@glimmer/component';
 import { tracked } from '@glimmer/tracking';
 import { hash } from '@ember/helper';
 import { guidFor } from '@ember/object/internals';
+// eslint-disable-next-line ember/no-at-ember-render-modifiers
+import didInsert from '@ember/render-modifiers/modifiers/did-insert';
 import { inject as service } from '@ember/service';
 
 import MapboxGlControl from '@prysmex-engineering/ember-mapbox-gl/helpers/mapbox-gl-control';
 import MapboxGlOn from '@prysmex-engineering/ember-mapbox-gl/helpers/mapbox-gl-on';
 import MapboxGlTerrain from '@prysmex-engineering/ember-mapbox-gl/helpers/mapbox-gl-terrain';
 import config from 'ember-get-config';
-import { modifier } from 'ember-modifier';
 
 import MapboxLoader from '../../-private/mapbox-loader';
 import MapboxGlLayer from './layer';
@@ -100,12 +101,7 @@ export default class MapboxGlComponent extends Component<MapboxGlSignature> {
     return this._cacheKey || guidFor(this);
   }
 
-  loadMap = modifier((element: HTMLDivElement) => {
-    if (this._wrapperElement) {
-      // Map is already loaded, do nothing
-      return;
-    }
-
+  loadMap = (element: HTMLDivElement) => {
     this._wrapperElement = element;
 
     let loader: MapboxLoader | undefined;
@@ -140,7 +136,7 @@ export default class MapboxGlComponent extends Component<MapboxGlSignature> {
     }
 
     this._loader = loader;
-  });
+  };
 
   mapLoaded = (map: MapboxMap) => {
     // Add map instance and DOM element to cache
@@ -182,7 +178,7 @@ export default class MapboxGlComponent extends Component<MapboxGlSignature> {
   }
 
   <template>
-    <div class="map-wrapper" {{this.loadMap}} ...attributes>
+    <div class="map-wrapper" {{didInsert this.loadMap}} ...attributes>
       {{#if this._loader.isLoaded}}
         {{yield
           (hash
