@@ -63,15 +63,7 @@ export default class MapboxGlTerrain extends Helper<MapboxGlTerrainSignature> {
       source: this.sourceId,
     };
 
-    // this.addTerrain(sourceSpecification, terrainSpecification);
-
-    if (map.isStyleLoaded()) {
-      this.addTerrain(sourceSpecification, terrainSpecification);
-    } else {
-      map.once('styledata', () => {
-        this.addTerrain(sourceSpecification, terrainSpecification);
-      });
-    }
+    this.addTerrain(sourceSpecification, terrainSpecification);
   }
 
   private addTerrain(
@@ -100,15 +92,7 @@ export default class MapboxGlTerrain extends Helper<MapboxGlTerrainSignature> {
         this.map.setTerrain(null);
       }
 
-      if (this.map.isStyleLoaded()) {
-        this.map.removeSource(this.sourceId);
-      } else {
-        this.map.once('styledata', () => {
-          if (this.map) {
-            this.map.removeSource(this.sourceId);
-          }
-        });
-      }
+      this.map.removeSource(this.sourceId);
     }
   }
 }
