@@ -3,9 +3,9 @@
 module.exports = {
   name: require('./package').name,
 
-  isDevelopingAddon() {
-    return true;
-  },
+  // isDevelopingAddon() {
+  //   return true;
+  // },
 
   options: {
     autoImport: {
@@ -16,10 +16,7 @@ module.exports = {
 
     babel: {
       // Ensure that `ember-auto-import` can handle the dynamic imports
-      plugins: [
-        require.resolve('ember-auto-import/babel-plugin'),
-        require.resolve('ember-concurrency/async-arrow-task-transform'),
-      ],
+      plugins: [require.resolve('ember-auto-import/babel-plugin')],
     },
   },
 
@@ -27,9 +24,11 @@ module.exports = {
     this._super.included.apply(this, arguments);
 
     const path = require('path');
-    const mapboxPkg = require(require.resolve('mapbox-gl/package.json', {
-      paths: [app.project.root],
-    }));
+    const mapboxPkg = require(
+      require.resolve('mapbox-gl/package.json', {
+        paths: [app.project.root],
+      }),
+    );
     const stylesPath = require.resolve(`mapbox-gl/${mapboxPkg.style}`, {
       paths: [app.project.root],
     });

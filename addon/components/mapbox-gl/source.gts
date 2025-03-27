@@ -5,8 +5,6 @@ import { scheduleOnce } from '@ember/runloop';
 import { inject as service } from '@ember/service';
 
 import MapboxGlLayer from '@prysmex-engineering/ember-mapbox-gl/components/mapbox-gl/layer';
-import waitForStyleLoaded from '@prysmex-engineering/ember-mapbox-gl/utils/wait-for-style-loaded';
-import { task } from 'ember-concurrency';
 import { resource, use } from 'ember-resources';
 
 import type Owner from '@ember/owner';
@@ -101,47 +99,36 @@ export default class MapboxGlSourceComponent extends Component<MapboxGlSourceSig
   }
 
   @use updateSource = resource(() => {
-    void this.upsertSourceTask.perform(this.args.options);
-  });
+    const source = this.args.map.getSource(this.sourceId);
 
-  upsertSourceTask = task(
-    { restartable: true },
-    async (options: SourceSpecification) => {
-      const source = this.args.map.getSource(this.sourceId);
-
-      if (!source) {
-        const _options = { ...options };
-        if (_options?.type === 'geojson' && !_options.data) {
-          /*
-            This allows you to send data as null without causing an error in first render.
-            Subsecuent renders only unhide the layer, so if data is required by an
-            if helper in the template, the layer won't be unhidden until the data has been loaded
-          */
-          _options.data = { type: 'FeatureCollection', features: [] };
-        }
-
-        if (!this.args.map.isStyleLoaded()) {
-          await waitForStyleLoaded(this.args.map);
-        }
-
-        try {
-          this.args.map.addSource(this.sourceId, _options);
-        } catch (e) {
-          console.error('Error adding source', this.sourceId, e);
-        }
-        // this.args.map.addSource(this.sourceId, _options);
-      } else {
-        if (options.type === 'geojson' && options?.data) {
-          (source as GeoJSONSource).setData(options.data);
-        } else if (options.type === 'image' && options?.coordinates) {
-          (source as ImageSource).setCoordinates(options.coordinates);
-        } else if (options.type === 'vector' && options.tiles) {
-          // For vector source type
-          (source as VectorTileSource).setTiles(options.tiles);
-        }
+    if (!source) {
+      const options = { ...this.args.options };
+      if (options?.type === 'geojson' && !options.data) {
+        /*
+          This allows you to send data as null without causing an error in first render.
+          Subsecuent renders only unhide the layer, so if data is required by an
+          if helper in the template, the layer won't be unhidden until the data has been loaded
+        */
+        options.data = { type: 'FeatureCollection', features: [] };
       }
-    },
-  );
+
+      try {
+        this.args.map.addSource(this.sourceId, options);
+      } catch (e) {
+        console.error('Error adding source', this.sourceId, e);
+      }
+    } else {
+      const options = this.args.options;
+      if (options.type === 'geojson' && options?.data) {
+        (source as GeoJSONSource).setData(options.data);
+      } else if (options.type === 'image' && options?.coordinates) {
+        (source as ImageSource).setCoordinates(options.coordinates);
+      } else if (options.type === 'vector' && options.tiles) {
+        // For vector source type
+        (source as VectorTileSource).setTiles(options.tiles);
+      }
+    }
+  });
 
   willDestroy() {
     super.willDestroy();
@@ -175,19 +162,17 @@ export default class MapboxGlSourceComponent extends Component<MapboxGlSourceSig
   <template>
     {{this.updateSource}}
 
-    {{#if this.upsertSourceTask.lastSuccessful}}
-      {{yield
-        (hash
-          layer=(component
-            MapboxGlLayer
-            map=@map
-            _sourceId=this.sourceId
-            cacheKey=@cacheKey
-            cache=@cache
-          )
-          id=this.sourceId
+    {{yield
+      (hash
+        layer=(component
+          MapboxGlLayer
+          map=@map
+          _sourceId=this.sourceId
+          cacheKey=@cacheKey
+          cache=@cache
         )
-      }}
-    {{/if}}
+        id=this.sourceId
+      )
+    }}
   </template>
 }
