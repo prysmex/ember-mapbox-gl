@@ -229,8 +229,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       mapbox-gl:
-        specifier: ^3.9.0
-        version: 3.9.3
+        specifier: ^3.13.0
+        version: 3.13.0
       prettier:
         specifier: ^3.4.2
         version: 3.4.2
@@ -1693,8 +1693,8 @@ packages:
   '@types/geojson-vt@3.2.5':
     resolution: {integrity: sha512-qDO7wqtprzlpe8FfQ//ClPV9xiuoh2nkIgiouIptON9w5jvD/fA4szvP9GBlDVdJ5dldAl0kX/sy3URbWwLx0g==}
 
-  '@types/geojson@7946.0.15':
-    resolution: {integrity: sha512-9oSxFzDCT2Rj6DfcHF8G++jxBKS7mBqXl5xrRW+Kbvjry6Uduya2iiwqHPhVXpasAVMBYKkEPGgKhd3+/HZ6xA==}
+  '@types/geojson@7946.0.16':
+    resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
 
   '@types/glob@7.2.0':
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
@@ -5219,8 +5219,8 @@ packages:
     resolution: {integrity: sha512-4y7uGv8bd2WdM9vpQsiQNo41Ln1NvhvDRuVt0k2JZQ+ezN2uaQes7lZeZ+QQUHOLQAtDaBJ+7wCbi+ab/KFs+w==}
     engines: {node: '>=0.10.0'}
 
-  mapbox-gl@3.9.3:
-    resolution: {integrity: sha512-31mh95f35srpBMxAP32F9dKQXz7pT5VxQA5r6bFY6Aa5G6Z6NC/SVOTyWR+G/wY8wXWTHAnOaAAf5UkD5++/Kg==}
+  mapbox-gl@3.13.0:
+    resolution: {integrity: sha512-TSSJIvDKsiSPk22889FWk9V4mmjljbizUf8Y2Jhho2j0Mj4zonC6kKwoVLf3oGqYWTZ+oQrd0Cxg6LCmZmPPbQ==}
 
   markdown-it-terminal@0.4.0:
     resolution: {integrity: sha512-NeXtgpIK6jBciHTm9UhiPnyHDdqyVIdRPJ+KdQtZaf/wR74gvhCNbw5li4TYsxRp5u3ZoHEF4DwpECeZqyCw+w==}
@@ -5244,6 +5244,9 @@ packages:
     resolution: {integrity: sha512-HR0m3bvu0jAPYiIvLUUQtdg1g6D247//lvcekpHO1WMvbwDlwSkZAX9Lw4F4YHE1T0HaaNve0tuAWuV1UJ6vtw==}
     engines: {node: '>= 18'}
     hasBin: true
+
+  martinez-polygon-clipping@0.7.4:
+    resolution: {integrity: sha512-jBEwrKtA0jTagUZj2bnmb4Yg2s4KnJGRePStgI7bAVjtcipKiF39R4LZ2V/UT61jMYWrTcBhPazexeqd6JAVtw==}
 
   matcher-collection@1.1.2:
     resolution: {integrity: sha512-YQ/teqaOIIfUHedRam08PB3NK7Mjct6BvzRnJmpGDm8uFXpNr1sbY4yuflI5JcEs6COpYA0FpRQhSDBf1tT95g==}
@@ -6319,6 +6322,9 @@ packages:
     resolution: {integrity: sha512-l0OE8wL34P4nJH/H2ffoaniAokM2qSmrtXHmlpvYr5AVVX8msAyW0l8NVJFDxlSK4u3Uh/f41cQheDVdnYijwQ==}
     hasBin: true
 
+  robust-predicates@2.0.4:
+    resolution: {integrity: sha512-l4NwboJM74Ilm4VKfbAtFeGq7aEjWL+5kVFcmgFA2MrdnQWx9iE/tUGvxY5HyMI7o/WpSIUFLbC5fbeaHgSCYg==}
+
   route-recognizer@0.3.4:
     resolution: {integrity: sha512-2+MhsfPhvauN1O8KaXpXAOfR/fwe8dnUXVM+xw7yt40lJRfPVQxV6yryZm0cgRvAj5fMF/mdRZbL2ptwbs5i2g==}
 
@@ -6640,6 +6646,9 @@ packages:
   spawn-args@0.2.0:
     resolution: {integrity: sha512-73BoniQDcRWgnLAf/suKH6V5H54gd1KLzwYN9FB6J/evqTV33htH9xwV/4BHek+++jzxpVlZQKKZkqstPQPmQg==}
 
+  splaytree@0.1.4:
+    resolution: {integrity: sha512-D50hKrjZgBzqD3FT2Ek53f2dcDLAQT8SSGrzj3vidNH5ISRgceeGVJ2dQIthKOuayqFXfFjXheHNo4bbt9LhRQ==}
+
   split-string@3.1.0:
     resolution: {integrity: sha512-NzNVhJDYpwceVVii8/Hu6DKfD2G+NrQHlS/V/qgv763EYudVwEcMQNxd2lh+0VrUByXN/oJkl5grOhYWvQUYiw==}
     engines: {node: '>=0.10.0'}
@@ -6911,6 +6920,9 @@ packages:
 
   tiny-lr@2.0.0:
     resolution: {integrity: sha512-f6nh0VMRvhGx4KCeK1lQ/jaL0Zdb5WdR+Jk8q9OSUQnaSDxAEGH1fgqLZ+cMl5EW3F2MGnCsalBO1IsnnogW1Q==}
+
+  tinyqueue@1.2.3:
+    resolution: {integrity: sha512-Qz9RgWuO9l8lT+Y9xvbzhPT2efIUIFd69N7eF7tJ9lnQl0iLj1M7peK7IoUGZL9DJHw9XftqLreccfxcQgYLxA==}
 
   tinyqueue@3.0.0:
     resolution: {integrity: sha512-gRa9gwYU3ECmQYv3lslts5hxuIa90veaEcxDYuu3QGOIAEM2mOZkVHp48ANJuu1CURtRdHKUBY5Lm1tHV+sD4g==}
@@ -9318,9 +9330,9 @@ snapshots:
 
   '@types/geojson-vt@3.2.5':
     dependencies:
-      '@types/geojson': 7946.0.15
+      '@types/geojson': 7946.0.16
 
-  '@types/geojson@7946.0.15': {}
+  '@types/geojson@7946.0.16': {}
 
   '@types/glob@7.2.0':
     dependencies:
@@ -9348,7 +9360,7 @@ snapshots:
 
   '@types/mapbox__vector-tile@1.3.4':
     dependencies:
-      '@types/geojson': 7946.0.15
+      '@types/geojson': 7946.0.16
       '@types/mapbox__point-geometry': 0.1.4
       '@types/pbf': 3.0.5
 
@@ -9398,7 +9410,7 @@ snapshots:
 
   '@types/supercluster@7.1.3':
     dependencies:
-      '@types/geojson': 7946.0.15
+      '@types/geojson': 7946.0.16
 
   '@types/symlink-or-copy@1.2.2': {}
 
@@ -14106,7 +14118,7 @@ snapshots:
     dependencies:
       object-visit: 1.0.1
 
-  mapbox-gl@3.9.3:
+  mapbox-gl@3.13.0:
     dependencies:
       '@mapbox/jsonlint-lines-primitives': 2.0.2
       '@mapbox/mapbox-gl-supported': 3.0.0
@@ -14115,7 +14127,7 @@ snapshots:
       '@mapbox/unitbezier': 0.0.1
       '@mapbox/vector-tile': 1.3.1
       '@mapbox/whoots-js': 3.1.0
-      '@types/geojson': 7946.0.15
+      '@types/geojson': 7946.0.16
       '@types/geojson-vt': 3.2.5
       '@types/mapbox__point-geometry': 0.1.4
       '@types/mapbox__vector-tile': 1.3.4
@@ -14128,6 +14140,7 @@ snapshots:
       gl-matrix: 3.4.3
       grid-index: 1.1.0
       kdbush: 4.0.2
+      martinez-polygon-clipping: 0.7.4
       murmurhash-js: 1.0.0
       pbf: 3.3.0
       potpack: 2.0.0
@@ -14166,6 +14179,12 @@ snapshots:
       marked: 11.2.0
 
   marked@11.2.0: {}
+
+  martinez-polygon-clipping@0.7.4:
+    dependencies:
+      robust-predicates: 2.0.4
+      splaytree: 0.1.4
+      tinyqueue: 1.2.3
 
   matcher-collection@1.1.2:
     dependencies:
@@ -15227,6 +15246,8 @@ snapshots:
     dependencies:
       glob: 10.4.5
 
+  robust-predicates@2.0.4: {}
+
   route-recognizer@0.3.4: {}
 
   router_js@8.0.6(route-recognizer@0.3.4)(rsvp@4.8.5):
@@ -15616,6 +15637,8 @@ snapshots:
   sourcemap-codec@1.4.8: {}
 
   spawn-args@0.2.0: {}
+
+  splaytree@0.1.4: {}
 
   split-string@3.1.0:
     dependencies:
@@ -16056,6 +16079,8 @@ snapshots:
       qs: 6.14.0
     transitivePeerDependencies:
       - supports-color
+
+  tinyqueue@1.2.3: {}
 
   tinyqueue@3.0.0: {}
 
