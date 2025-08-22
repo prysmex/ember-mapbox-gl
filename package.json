@@ -1,6 +1,6 @@
 {
   "name": "@prysmex-engineering/ember-mapbox-gl",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "Ember integration for Mapbox GL JS",
   "keywords": [
     "ember-addon"
@@ -122,7 +122,7 @@
     "globals": "^15.14.0",
     "loader.js": "^4.7.0",
     "lodash-es": "^4.17.21",
-    "mapbox-gl": "^3.13.0",
+    "mapbox-gl": "^3.14.0",
     "prettier": "^3.4.2",
     "prettier-plugin-ember-template-tag": "^2.0.4",
     "qunit": "^2.23.1",
@@ -137,7 +137,7 @@
   },
   "peerDependencies": {
     "lodash-es": "^4.17.21",
-    "mapbox-gl": "^3.13.0"
+    "mapbox-gl": "^3.14.0"
   },
   "publishConfig": {
     "access": "public"
