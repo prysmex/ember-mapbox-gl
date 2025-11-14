@@ -122,7 +122,7 @@
     "globals": "^15.14.0",
     "loader.js": "^4.7.0",
     "lodash-es": "^4.17.21",
-    "mapbox-gl": "^3.14.0",
+    "mapbox-gl": "^3.16.0",
     "prettier": "^3.4.2",
     "prettier-plugin-ember-template-tag": "^2.0.4",
     "qunit": "^2.23.1",
@@ -137,7 +137,7 @@
   },
   "peerDependencies": {
     "lodash-es": "^4.17.21",
-    "mapbox-gl": "^3.14.0"
+    "mapbox-gl": "^3.16.0"
   },
   "publishConfig": {
     "access": "public"
