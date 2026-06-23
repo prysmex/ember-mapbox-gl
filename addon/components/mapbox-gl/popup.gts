@@ -1,5 +1,5 @@
 import Component from '@glimmer/component';
-import { helper } from '@ember/component/helper';
+import { helper as helperFn } from '@ember/component/helper';
 import { hash } from '@ember/helper';
 
 import MapboxGlOn from '@prysmex-engineering/ember-mapbox-gl/helpers/mapbox-gl-on';
@@ -106,7 +106,7 @@ export default class MapboxGlPopupComponent extends Component<MapboxGlPopupSigna
     }
   }
 
-  setLngLat = helper(function ([lngLat, popup, map]: [
+  setLngLat = helperFn(function ([lngLat, popup, map]: [
     lngLat: LngLatLike | undefined,
     popup: Popup,
     map: MapboxMap,
