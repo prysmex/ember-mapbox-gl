@@ -1,6 +1,6 @@
 {
   "name": "@prysmex-engineering/ember-mapbox-gl",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Ember integration for Mapbox GL JS",
   "keywords": [
     "ember-addon"
