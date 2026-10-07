@@ -2,24 +2,37 @@
 
 ## Installation
 
-* `git clone https://github.com/prysmex/ember-mapbox-gl`
-* `cd ember-mapbox-gl`
-* `pnpm install`
+- `git clone https://github.com/prysmex/ember-mapbox-gl`
+- `cd ember-mapbox-gl`
+- `pnpm install`
+
+## Mapbox access token
+
+The tests and the demo app need a Mapbox access token. Never commit it.
+Put it in `.env.development.local` (git-ignored):
+
+```sh
+VITE_MAPBOX_ACCESS_TOKEN=pk.your-token
+```
+
+or export `VITE_MAPBOX_ACCESS_TOKEN` in your shell. CI reads it from the
+`MAPBOX_ACCESS_TOKEN` repository secret.
 
 ## Linting
 
-* `pnpm lint`
-* `pnpm lint:fix`
+- `pnpm lint`
+- `pnpm lint:fix`
+
+## Building the addon
+
+- `pnpm build`
 
 ## Running tests
 
-* `pnpm run test` – Runs the test suite on the current Ember version
-* `pnpm run test:ember -- --server` – Runs the test suite in "watch mode"
-* `pnpm run test:ember-compatibility` – Runs the test suite against multiple Ember versions
+- `pnpm test` – Runs the test suite on the current Ember version
+- `pnpm start`, then visit [http://localhost:5173/tests/](http://localhost:5173/tests/) – Runs the test suite in the browser in "watch mode"
 
-## Running the dummy application
+## Running the demo application
 
-* `pnpm run start`
-* Visit the dummy application at [http://localhost:4200](http://localhost:4200).
-
-For more information on using ember-cli, visit [https://ember-cli.com/](https://ember-cli.com/).
+- `pnpm start`
+- Visit the demo application at [http://localhost:5173](http://localhost:5173).

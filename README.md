@@ -16,23 +16,91 @@ Ember integration with [mapbox-gl-js](https://www.mapbox.com/mapbox-gl-js/api/).
 ## Installation
 
 ```sh
-ember install @prysmex-engineering/ember-mapbox-gl
+pnpm add @prysmex-engineering/ember-mapbox-gl mapbox-gl
 ```
 
-Then, add your Mapbox access token to `config/environment.js`:
+`mapbox-gl` is a peer dependency. Its stylesheet is imported by the
+`<MapboxGl>` component, so you don't need to include it yourself.
+
+## Configuration
+
+Global options (access token and default map, marker, popup and layer
+options) live in the `mapbox-gl-config` service.
+
+### Apps built with ember-cli (classic or Embroider compat)
+
+Nothing changes from previous versions: the service reads the `mapbox-gl` key
+from `config/environment.js` when it is created.
+
 ```javascript
-module.exports = function(environment) {
+module.exports = function (environment) {
   let ENV = {
     'mapbox-gl': {
-      accessToken: 'ACCESS TOKEN HERE'
+      accessToken: 'ACCESS TOKEN HERE',
     },
+  };
+};
+```
+
+### Setting the config at runtime
+
+You can also configure the service from code, for example in the application
+route. `configure()` only replaces the keys you pass:
+
+```ts
+import Route from '@ember/routing/route';
+import { service } from '@ember/service';
+
+import type { MapboxGlConfigService } from '@prysmex-engineering/ember-mapbox-gl';
+
+export default class ApplicationRoute extends Route {
+  @service declare mapboxGlConfig: MapboxGlConfigService;
+
+  beforeModel() {
+    this.mapboxGlConfig.configure({
+      accessToken: 'ACCESS TOKEN HERE',
+      map: { style: 'mapbox://styles/mapbox/streets-v12' },
+    });
+  }
 }
 ```
 
+### Apps using the strict resolver (`ember-strict-application-resolver`, Vite)
+
+Addon services are not registered automatically there, so add them to your
+app's `modules`:
+
+```ts
+import { MapCacheService, MapboxGlConfigService } from '@prysmex-engineering/ember-mapbox-gl';
+
+export default class App extends EmberApp {
+  modules = {
+    // ...
+    './services/map-cache': MapCacheService,
+    './services/mapbox-gl-config': MapboxGlConfigService,
+  };
+}
+```
+
+## Usage in `.gjs`/`.gts`
+
+All components and helpers are exported from the package root:
+
+```gjs
+import { MapboxGl } from '@prysmex-engineering/ember-mapbox-gl';
+
+<template>
+  <MapboxGl as |map|>
+    ...
+  </MapboxGl>
+</template>
+```
+
 ## Compatibility
-* Ember.js v3.24 or above
-* Ember CLI v3.24 or above
-* Node.js v18 or above
+
+* Ember.js v5.8 or above
+* Embroider or ember-auto-import v2
+* Node.js v20 or above
 
 ## API Documentation
 See the detailed [API Documentation](API.md).

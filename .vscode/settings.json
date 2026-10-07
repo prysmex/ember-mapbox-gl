@@ -2,9 +2,5 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "eslint.validate": [
-    "javascript",
-    "glimmer-ts",
-		"glimmer-js"
-  ]
+  "eslint.validate": ["javascript", "glimmer-ts", "glimmer-js"]
 }

@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 
-import noop from '@prysmex-engineering/ember-mapbox-gl/utils/noop';
+import noop from '#src/utils/noop.ts';
 
 module('Unit | Utility | noop', function () {
   // Replace this with your real tests.

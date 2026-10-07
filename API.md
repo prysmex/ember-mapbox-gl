@@ -34,6 +34,10 @@ Available properties are documented in the [mapbox-gl-js#map API](https://www.ma
 - `marker`: Optional. Default options for all markers.
 - `popup`: Optional. Default options for all popups.
 
+These options can be set in `config/environment.js` (read by the
+`mapbox-gl-config` service on creation) or at runtime with
+`this.mapboxGlConfig.configure({ ... })`. See the README for details.
+
 ### Example
 ```javascript
 module.exports = function(environment) {

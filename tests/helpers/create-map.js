@@ -1,6 +1,6 @@
-import { Promise } from 'rsvp';
-import Config from '../../config/environment';
 import QUnit from 'qunit';
+
+import { ACCESS_TOKEN, MAP_STYLE } from './config.js';
 
 const ALLOWED_ERRORS = ['The operation was aborted', 'Failed to fetch'];
 
@@ -8,14 +8,14 @@ export default function setupMap(hooks) {
   hooks.beforeEach(async function () {
     const MapboxGl = await import('mapbox-gl');
     this.MapboxGl = MapboxGl.default;
-    this.MapboxGl.accessToken = Config['mapbox-gl'].accessToken;
+    this.MapboxGl.accessToken = ACCESS_TOKEN;
 
     await new Promise((resolve) => {
       this.map = new this.MapboxGl.Map({
         container: document
-          .querySelector(Config.APP.rootElement)
+          .querySelector('#ember-testing')
           .appendChild(document.createElement('div')),
-        style: Config['mapbox-gl'].map.style,
+        style: MAP_STYLE,
       });
 
       this.map.style.once('data', () => resolve());
@@ -28,10 +28,9 @@ export default function setupMap(hooks) {
         };
 
         if (ALLOWED_ERRORS.includes(err.message)) {
-          // eslint-disable-next-line no-console
           console.error(err.message, ev.error);
         } else {
-          QUnit.onUnhandledRejection(err);
+          QUnit.onUncaughtException(err);
         }
       };
 
@@ -43,7 +42,7 @@ export default function setupMap(hooks) {
   hooks.afterEach(function () {
     this.map.remove();
     document
-      .querySelector(Config.APP.rootElement)
+      .querySelector('#ember-testing')
       .querySelectorAll('.mapboxgl-map')
       .forEach((el) => el.remove());
   });
