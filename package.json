@@ -19,6 +19,14 @@
     },
     "./addon-main.js": "./addon-main.cjs",
     "./*.css": "./dist/*.css",
+    "./components/mapbox-gl": {
+      "types": "./declarations/components/mapbox-gl/index.d.ts",
+      "default": "./dist/components/mapbox-gl/index.js"
+    },
+    "./*.js": {
+      "types": "./declarations/*.d.ts",
+      "default": "./dist/*.js"
+    },
     "./*": {
       "types": "./declarations/*.d.ts",
       "default": "./dist/*.js"
@@ -40,7 +48,7 @@
     "lint:hbs:fix": "ember-template-lint . --fix --no-error-on-unmatched-pattern",
     "lint:js": "eslint .",
     "lint:js:fix": "eslint . --fix",
-    "lint:publish": "pnpm build && publint run --level error",
+    "lint:publish": "pnpm build && publint run --level error && node scripts/check-exports.mjs",
     "lint:types": "ember-tsc --noEmit",
     "prepack": "rollup --config",
     "start": "vite dev",
